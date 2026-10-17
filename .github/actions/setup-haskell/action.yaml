@@ -1,0 +1,19 @@
+name: Setup Haskell
+description: Update the Cabal package index with the Nix-managed toolchain.
+
+inputs:
+  dev-shell:
+    description: Nix devShell attribute to load. Run setup-nix before this action.
+    required: false
+    default: default
+
+runs:
+  using: composite
+  steps:
+    - name: Update Cabal package index
+      shell: bash
+      env:
+        NIX_DEV_SHELL: ${{ inputs.dev-shell }}
+      run: |
+        eval "$(nix print-dev-env "$GITHUB_WORKSPACE#$NIX_DEV_SHELL")"
+        cabal update
