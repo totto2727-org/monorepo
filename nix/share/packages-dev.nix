@@ -8,10 +8,8 @@ with pkgs;
   nodejs_24
   bun
   deno
-  vite-plus
   python3
   uv
   go
   rustup
-  moonbit-bin.moonbit.latest
 ]
