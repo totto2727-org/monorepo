@@ -10,11 +10,6 @@ let
     packageName = "@monid-ai/cli";
   };
 
-  oo = npm {
-    binName = "oo";
-    packageName = "@oomol-lab/oo-cli";
-  };
-
   docker-credential-gh = writeShellScriptBin "docker-credential-gh" ''
     set -e
 
@@ -113,7 +108,6 @@ in
 {
   sandbox = [
     monid
-    oo
     docker-credential-gh
     sandbox-wt
     sandbox-j
