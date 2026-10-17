@@ -102,6 +102,8 @@ let
 in
 {
   sandbox = [
+    pkgs.monid
+    pkgs.oo-cli
     docker-credential-gh
     sandbox-wt
     sandbox-j

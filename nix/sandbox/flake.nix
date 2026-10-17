@@ -73,11 +73,10 @@
                 (import ../share/packages.nix {
                   inherit pkgs npm;
                 })
-                ++ (import ../share/packages-scripts.nix { inherit pkgs npm; }).sandbox
-                ++ (with local-packages.packages.${system}; [
-                  monid
-                  oo-cli
-                ]);
+                ++ (import ../share/packages-scripts.nix {
+                  inherit npm;
+                  pkgs = pkgs // local-packages.packages.${system};
+                }).sandbox;
 
               programs = (import ../share/programs.nix { inherit pkgs; }) // {
                 home-manager.enable = true;
