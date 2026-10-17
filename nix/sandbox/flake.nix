@@ -53,6 +53,7 @@
             inherit system;
             config.allowUnfree = true;
             overlays = [
+              local-packages.overlays.default
               moonbit-overlay.overlays.default
               vite-plus-overlay.overlays.default
               jcode-overlay.overlays.default
@@ -73,10 +74,7 @@
                 (import ../share/packages.nix {
                   inherit pkgs npm;
                 })
-                ++ (import ../share/packages-scripts.nix {
-                  inherit npm;
-                  pkgs = pkgs // local-packages.packages.${system};
-                }).sandbox;
+                ++ (import ../share/packages-scripts.nix { inherit pkgs npm; }).sandbox;
 
               programs = (import ../share/programs.nix { inherit pkgs; }) // {
                 home-manager.enable = true;
