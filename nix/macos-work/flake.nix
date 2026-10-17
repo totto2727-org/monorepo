@@ -18,6 +18,7 @@
     };
     local-packages = {
       url = "path:../share/packages";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
     my = {
       url = "path:../share/my";

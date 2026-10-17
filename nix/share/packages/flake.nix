@@ -2,9 +2,9 @@
   description = "Locally packaged applications not available in nixpkgs";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.1";
     bun2nix = {
-      url = "github:nix-community/bun2nix/2.1.2";
+      url = "github:nix-community/bun2nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -45,8 +45,5 @@
         }
       );
 
-      checks = forAllSystems (system: {
-        inherit (self.packages.${system}) oo-cli;
-      });
     };
 }

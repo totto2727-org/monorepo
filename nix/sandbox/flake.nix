@@ -12,6 +12,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     local-packages = {
+      # Bun 1.3.3 in the stable host input fails oo-cli's ESM runtime checks.
       url = "path:../share/packages";
     };
     moonbit-overlay = {

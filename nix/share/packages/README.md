@@ -18,8 +18,10 @@ The package generates the upstream Open Flow references before compilation and i
 
 The catalog supports `aarch64-darwin`, `aarch64-linux`, and `x86_64-linux`.
 It exposes `packages.<system>.oo-cli` and `overlays.default`, which adds `pkgs.oo-cli`.
-The builder and Bun compiler use the catalog's locked nixpkgs input, not the host package set.
-Keep this input independent: older host versions of Bun cannot build the upstream ESM bytecode executable correctly.
+The catalog defaults to the same FlakeHub nixpkgs channel as the root development flake.
+The two macOS consumers set `inputs.nixpkgs.follows = "nixpkgs"` on `local-packages` to reuse their host input, including for bun2nix and its Bun compiler.
+The sandbox retains the catalog's separate input because its stable nixpkgs provides Bun 1.3.3, whose compiled upstream ESM executable fails the runtime checks.
+The bun2nix URL has no release tag; `flake.lock` records the exact revision.
 The existing `pass-cli` package remains available through the same interfaces.
 The catalog also exposes `packages.<system>.bun2nix` for dependency-file generation.
 
@@ -32,13 +34,14 @@ They do not activate a configuration automatically.
 
 ```bash
 nix flake check ./nix/share/packages
+nix build ./nix/share/packages#oo-cli --no-link
 vp run --filter @app/nix check
 ```
 
 The package's install checks run with an isolated home directory and telemetry disabled.
 They check the version, help output, bundled-skill metadata, and generated Open Flow reference.
 The CLI checks use an empty `PATH` to detect an external runtime dependency.
-`nix flake check` builds the package for the current system, not every supported system.
+`nix flake check` validates the catalog outputs; `nix build` builds oo-cli and runs its install checks for the current system.
 No dedicated GitHub Actions workflow is required.
 
 ## Update oo-cli
