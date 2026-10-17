@@ -3,47 +3,13 @@
 
   inputs = {
     nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.1";
-    home-manager = {
-      url = "https://flakehub.com/f/nix-community/home-manager/0.1";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    nix-darwin = {
-      url = "https://flakehub.com/f/nix-darwin/nix-darwin/0.1";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    npmpkgs = {
-      url = "path:../npm-package";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.moonbit-overlay.follows = "moonbit-overlay";
-    };
-    local-packages = {
-      url = "path:../share/packages";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    my = {
-      url = "path:../share/my";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    my-macos = {
-      url = "path:../share/my/macos";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    moonbit-overlay = {
-      url = "github:totto2727/moonbit-overlay";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    vite-plus-overlay = {
-      url = "github:ryoppippi/nix-vite-plus";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    codex-overlay = {
-      url = "github:sadjow/codex-cli-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    apple-container-overlay = {
-      url = "github:halfwhey/nix-apple-container";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    home-manager.url = "https://flakehub.com/f/nix-community/home-manager/0.1";
+    nix-darwin.url = "https://flakehub.com/f/nix-darwin/nix-darwin/0.1";
+    npmpkgs.url = "path:../npm-package";
+    local-packages.url = "path:../share/packages";
+    my.url = "path:../share/my";
+    my-macos.url = "path:../share/my/macos";
+    apple-container-overlay.url = "github:halfwhey/nix-apple-container";
   };
 
   outputs =
@@ -56,9 +22,6 @@
       my-macos,
       home-manager,
       nix-darwin,
-      moonbit-overlay,
-      vite-plus-overlay,
-      codex-overlay,
       apple-container-overlay,
     }:
     let
@@ -73,9 +36,6 @@
           local-packages.overlays.default
           my.overlays.default
           my-macos.overlays.default
-          moonbit-overlay.overlays.default
-          vite-plus-overlay.overlays.default
-          codex-overlay.overlays.default
         ];
       };
       npm = npmpkgs.lib.${pkgs.system}.npmPackage;
@@ -156,7 +116,6 @@
                     ++ (import ../share/packages-scripts.nix { inherit pkgs npm; }).macos
                     ++ (with pkgs; [
                       codex
-                      flowdeck
                       glossshift
                     ]);
 
@@ -185,7 +144,7 @@
                   services = (import ../share/programs-macos.nix { inherit pkgs; }).services;
 
                   home.sessionVariables = import ../share/session-variables.nix;
-                  home.sessionPath = import ../share/session-path.nix;
+                  home.sessionPath = (import ../share/session-path.nix) ++ [ "$HOME/.vite-plus/bin" ];
 
                   home.file.".docker/config.json".text = builtins.toJSON {
                     auths = {

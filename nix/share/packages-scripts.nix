@@ -5,16 +5,6 @@ let
 
   # --- shared wrappers (no secrets) ---
 
-  monid = npm {
-    binName = "monid";
-    packageName = "@monid-ai/cli";
-  };
-
-  oo = npm {
-    binName = "oo";
-    packageName = "@oomol-lab/oo-cli";
-  };
-
   docker-credential-gh = writeShellScriptBin "docker-credential-gh" ''
     set -e
 
@@ -66,14 +56,14 @@ let
     ${pkgs.jq}/bin/jq -n '{keys: {gateway: {key: env.OPENCONNECTOR_TOKEN, prefix: "gateway", added_at: (now | todate)}}}' > "$XDG_CONFIG_HOME/monid/credentials.yaml"
     export MONID_API_BASE_URL="''${OPENCONNECTOR_BASE_URL%/}/v1/passthrough/monid"
 
-    ${monid}/bin/monid "$@"
+    ${pkgs.monid}/bin/monid "$@"
   '';
 
   macos-oo = writeShellScriptBin "oo" ''
     ${openConnectorEnv}
     export OO_CONNECTOR_URL="$OPENCONNECTOR_BASE_URL"
     export OO_CONNECTOR_TOKEN="$OPENCONNECTOR_TOKEN"
-    exec ${oo}/bin/oo "$@"
+    exec ${pkgs.oo-cli}/bin/oo "$@"
   '';
 
   macos-wt = writeShellScriptBin "wt" ''
@@ -112,8 +102,8 @@ let
 in
 {
   sandbox = [
-    monid
-    oo
+    pkgs.monid
+    pkgs.oo-cli
     docker-credential-gh
     sandbox-wt
     sandbox-j

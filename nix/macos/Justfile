@@ -1,0 +1,10 @@
+set shell := ["bash", "-euo", "pipefail", "-c"]
+
+default:
+    @just --list
+
+install-moonbit:
+    curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+
+install-vite-plus:
+    curl -fsSL https://vite.plus | bash
