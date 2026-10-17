@@ -1,10 +1,20 @@
 {
   description = "Locally packaged applications not available in nixpkgs";
 
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    bun2nix = {
+      url = "github:nix-community/bun2nix/2.1.2";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
 
   outputs =
-    { self, nixpkgs }:
+    {
+      self,
+      nixpkgs,
+      bun2nix,
+    }:
     let
       supportedSystems = [
         "x86_64-linux"
@@ -16,8 +26,7 @@
     {
       overlays.default = final: _prev: {
         oo-cli = final.callPackage ./oo-cli.nix {
-          # The stable host package set can contain Bun without ESM bytecode support.
-          bun = nixpkgs.legacyPackages.${final.stdenv.buildPlatform.system}.bun;
+          bun2nix = bun2nix.packages.${final.stdenv.buildPlatform.system}.default;
         };
         pass-cli = final.callPackage ./pass-cli.nix { };
       };
@@ -32,6 +41,7 @@
         in
         {
           inherit (pkgs) oo-cli pass-cli;
+          inherit (bun2nix.packages.${system}) bun2nix;
         }
       );
 
