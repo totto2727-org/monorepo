@@ -3,47 +3,16 @@
 
   inputs = {
     nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.1";
-    home-manager = {
-      url = "https://flakehub.com/f/nix-community/home-manager/0.1";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    nix-darwin = {
-      url = "https://flakehub.com/f/nix-darwin/nix-darwin/0.1";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    npmpkgs = {
-      url = "path:../npm-package";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.moonbit-overlay.follows = "moonbit-overlay";
-    };
-    local-packages = {
-      url = "path:../share/packages";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    my = {
-      url = "path:../share/my";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    my-macos = {
-      url = "path:../share/my/macos";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    moonbit-overlay = {
-      url = "github:totto2727/moonbit-overlay";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    vite-plus-overlay = {
-      url = "github:ryoppippi/nix-vite-plus";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    codex-overlay = {
-      url = "github:sadjow/codex-cli-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    apple-container-overlay = {
-      url = "github:halfwhey/nix-apple-container";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    home-manager.url = "https://flakehub.com/f/nix-community/home-manager/0.1";
+    nix-darwin.url = "https://flakehub.com/f/nix-darwin/nix-darwin/0.1";
+    npmpkgs.url = "path:../npm-package";
+    local-packages.url = "path:../share/packages";
+    my.url = "path:../share/my";
+    my-macos.url = "path:../share/my/macos";
+    moonbit-overlay.url = "github:totto2727/moonbit-overlay";
+    vite-plus-overlay.url = "github:ryoppippi/nix-vite-plus";
+    codex-overlay.url = "github:sadjow/codex-cli-nix";
+    apple-container-overlay.url = "github:halfwhey/nix-apple-container";
   };
 
   outputs =

@@ -5,7 +5,6 @@
 }:
 let
   version = "1.9.8";
-  rev = "17f5e45a500cca5f02f654c2ab018f5c0a81d33d";
 in
 bun2nix.mkDerivation {
   pname = "oo";
@@ -13,7 +12,7 @@ bun2nix.mkDerivation {
   src = fetchFromGitHub {
     owner = "oomol-lab";
     repo = "oo-cli";
-    inherit rev;
+    rev = "v${version}";
     hash = "sha256-rLwndZ4faA3F14BDIz7KkRVzFGCtJZLrrltzqbKWTJA=";
   };
   module = "index.ts";
