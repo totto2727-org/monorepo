@@ -3,6 +3,9 @@ set shell := ["bash", "-euo", "pipefail", "-c"]
 default:
     @just --list
 
+install-jcode:
+    curl -fsSL https://jcode.sh/install | bash
+
 install-moonbit:
     curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
 
