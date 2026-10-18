@@ -3,6 +3,7 @@ with pkgs;
 [
   git
   # CLI
+  witr
   eza
   ripgrep
   sd
@@ -10,7 +11,6 @@ with pkgs;
   rename
   fzf
   bottom
-  witr
   # TUI
   neovim
   lazygit

@@ -1,66 +1,30 @@
 # syntax=docker/dockerfile:1
 
-# Base
-# https://github.com/NVIDIA/OpenShell-Community/blob/6daeacdf199afdd49753ddd149a9c259921ab1a8/sandboxes/base/Dockerfile
+ARG NIX_IMAGE=ghcr.io/totto2727-org/monorepo/nix:latest
+FROM ${NIX_IMAGE}
 
-FROM ubuntu:26.04
+# Keep every local flake input in the same source snapshot.
+COPY --chown=sandbox:sandbox nix/share /home/sandbox/nix/share
+COPY --chown=sandbox:sandbox nix/sandbox /home/sandbox/nix/sandbox
 
-# Setup Nix
-## Install dependencies
+ARG TARGETARCH
 RUN <<EOF
-apt-get update
-apt-get upgrade -y
+case "$TARGETARCH" in
+  amd64) NIX_SYSTEM=x86_64-linux ;;
+  arm64) NIX_SYSTEM=aarch64-linux ;;
+  *) echo "unsupported TARGETARCH: $TARGETARCH" >&2; exit 1 ;;
+esac
 
-apt-get install -y 
+# A Git flake preserves sibling path inputs within the source snapshot.
+git -C /home/sandbox/nix init
+git -C /home/sandbox/nix add .
+nix run --inputs-from ~/nix/sandbox home-manager -- switch --flake ~/nix/sandbox#sandbox-${NIX_SYSTEM}
+home-manager --version
 
-apt-get install -y \
-# For share
-curl gcc make \ 
- # For sandbox
-ca-certificates \
-dnsutils \
-iproute2 \
-iptables \
-iputils-ping \
-net-tools \
-netcat-openbsd \
-openssh-sftp-server \
-procps \
-traceroute \
-# For nix
-xz-utils git
-rm -rf /var/lib/apt/lists/*
-EOF
-
-RUN <<EOF
-# For sandbox
-groupadd -r supervisor
-useradd -r -g supervisor -s /usr/sbin/nologin supervisor
-
-groupadd -r sandbox
-useradd -r -g sandbox -d /sandbox -s /bin/bash sandbox
-
-# For nix
-mkdir -p /etc/nix/
-echo "experimental-features = nix-command flakes" >> /etc/nix/nix.conf
-
-mkdir /nix
-chown sandbox:sandbox /nix
-EOF
-
-USER sandbox
-WORKDIR /sandbox
-ENV USER=sandbox
-ENV PATH="/sandbox/.nix-profile/bin:/sandbox/.local/bin:$PATH"
-
-RUN <<EOF
-curl -fsSL https://nixos.org/nix/install | sh -s -- --no-daemon
-. ~/.nix-profile/etc/profile.d/nix.sh
-
-nix run home-manager/release-25.11 -- init --switch
-
-rm -rf ~/.cache /tmp/*
 nix-collect-garbage -d
+rm -rf /home/sandbox/.cache
 EOF
 
-ENTRYPOINT [ "/bin/bash" ]
+SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
+
+ENTRYPOINT ["/bin/bash"]
