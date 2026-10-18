@@ -90,3 +90,79 @@ Never put provider credentials or workstation Jcode authentication files in a Do
 Supply credentials at runtime through the platform's secret mechanism or an explicitly scoped mount.
 The sandbox context excludes `secrets/` and `.env` files.
 No provider credentials are necessary to build these generic images.
+
+## Runtime provider environment
+
+This section is for developers who configure a derived application or its task launcher.
+Supply these variables to the agent process at runtime.
+Use these names rather than generic names such as `API_KEY` or `BASE_URL`.
+Each workflow needs only the credentials for the services it uses.
+
+| Variable                        | Value                                                                              | Secret |
+| ------------------------------- | ---------------------------------------------------------------------------------- | ------ |
+| `OPENCONNECTOR_BASE_URL`        | Trusted HTTPS OOMOL/OpenConnector gateway origin, without `/v1` or a provider path | No     |
+| `OPENCONNECTOR_TOKEN`           | Runtime token authorized for that gateway                                          | Yes    |
+| `CLOUDFLARE_ACCOUNT_ID`         | Cloudflare account ID for inference                                                | No     |
+| `CLOUDFLARE_AI_GATEWAY_ID`      | Existing AI Gateway ID within that account                                         | No     |
+| `CLOUDFLARE_AI_GATEWAY_API_KEY` | Cloudflare token authorized for the selected inference route                       | Yes    |
+
+### OOMOL, oo, and Monid
+
+`OPENCONNECTOR_BASE_URL` and `OPENCONNECTOR_TOKEN` are the shared inputs used by the OpenConnector and Monid skills.
+The [macOS wrappers](../nix/share/packages-scripts.nix) use the same names, but obtain their values from the workstation password manager.
+The sandbox installs the `oo` and `monid` binaries without those macOS wrappers.
+It does not read workstation secrets or create CLI profiles.
+The application must map the shared inputs before it starts the agent:
+
+```bash
+export OO_CONNECTOR_URL="$OPENCONNECTOR_BASE_URL"
+export OO_CONNECTOR_TOKEN="$OPENCONNECTOR_TOKEN"
+export MONID_API_BASE_URL="${OPENCONNECTOR_BASE_URL%/}/v1/passthrough/monid"
+```
+
+| CLI setting                      | Source                                      | Purpose                                            |
+| -------------------------------- | ------------------------------------------- | -------------------------------------------------- |
+| `OO_CONNECTOR_URL`               | `OPENCONNECTOR_BASE_URL`                    | Select the trusted Connector gateway               |
+| `OO_CONNECTOR_TOKEN`             | `OPENCONNECTOR_TOKEN`                       | Authenticate `oo` Connector requests               |
+| `MONID_API_BASE_URL`             | Gateway origin plus `/v1/passthrough/monid` | Send Monid requests through the same gateway       |
+| Monid profile `active_key`       | `gateway`                                   | Select the gateway credential profile              |
+| Monid profile `keys.gateway.key` | `OPENCONNECTOR_TOKEN`                       | Authenticate Monid requests with the runtime token |
+
+`MONID_API_BASE_URL` selects the endpoint, but does not configure Monid authentication by itself.
+Before invoking Monid, the application must create a private profile under `${XDG_CONFIG_HOME:-$HOME/.config}/monid` as described by the `monid` skill.
+The existing macOS Monid wrapper illustrates a temporary profile with `umask 077`, `config.yaml`, and `credentials.yaml`.
+Keep the profile within the task lifecycle and remove temporary credentials when the task ends.
+Do not use a direct Monid key or its default public endpoint for this environment.
+
+These settings configure Connector and Monid access, not the OOMOL-hosted LLM API.
+For that separate API, follow the `oo` skill and obtain client settings with `oo llm config --json` in an authorized OOMOL account context.
+Do not assume the Connector origin is an OpenAI-compatible base URL.
+
+### Cloudflare AI
+
+Follow the `cloudflare-ai` skill for request bodies, model selection, and authentication.
+It uses the fixed Cloudflare hosts below, so no additional Cloudflare URL variable is required.
+These shell assignments construct endpoints without making a request:
+
+```bash
+CLOUDFLARE_CHAT_COMPLETIONS_URL="https://gateway.ai.cloudflare.com/v1/${CLOUDFLARE_ACCOUNT_ID}/${CLOUDFLARE_AI_GATEWAY_ID}/compat/chat/completions"
+CLOUDFLARE_WORKERS_AI_RUN_URL="https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/ai/run"
+```
+
+The URL variable names above are local examples, not additional inputs required by the skill.
+The compatibility endpoint uses `cf-aig-authorization: Bearer <token>`.
+Workers AI uses `Authorization: Bearer <token>` and selects the Gateway with `cf-aig-gateway-id: <gateway-id>` when the skill requires it.
+In both cases, `<token>` comes from `CLOUDFLARE_AI_GATEWAY_API_KEY`.
+Gateway access and Workers AI inference require different permissions.
+The variable name does not prove that a token has both permissions, and an inference token must not be treated as a deployment credential.
+
+See [AI Gateway REST API](https://developers.cloudflare.com/ai-gateway/usage/rest-api/) and [Workers AI REST setup](https://developers.cloudflare.com/workers-ai/get-started/rest-api/) for the provider contracts.
+
+### Secret handling
+
+Use the platform's runtime secret injection for both tokens.
+Do not persist tokens in the image, Nix store, repository, shell startup files, or task logs.
+Do not print environment values, enable shell tracing, or pass tokens as literal command arguments.
+For curl requests, follow the skill's stdin configuration pattern rather than placing authentication headers in command arguments.
+Pass the variables only to processes that need them.
+The launcher owns environment mapping and Monid profile setup; this README does not add automatic startup behavior to the image.
