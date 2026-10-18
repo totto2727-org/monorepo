@@ -55,8 +55,9 @@
               programs = {
                 direnv = import ../share/direnv.nix;
                 git.enable = true;
-                gh = (import ../share/gh.nix { inherit pkgs; }) // {
-                  extensions = [ ];
+                gh = {
+                  enable = true;
+                  gitCredentialHelper.enable = true;
                 };
                 home-manager.enable = true;
                 zsh = {
