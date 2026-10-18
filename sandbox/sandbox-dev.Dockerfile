@@ -5,7 +5,6 @@ FROM ${SANDBOX_BASE_IMAGE}
 
 # Keep every local flake input in the same source snapshot.
 COPY --chown=sandbox:sandbox nix/share /home/sandbox/nix/share
-COPY --chown=sandbox:sandbox nix/npm-package /home/sandbox/nix/npm-package
 COPY --chown=sandbox:sandbox nix/sandbox /home/sandbox/nix/sandbox
 
 ARG TARGETARCH

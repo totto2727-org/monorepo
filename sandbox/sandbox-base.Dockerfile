@@ -1,6 +1,9 @@
 # syntax=docker/dockerfile:1
 
-# Shared non-root runtime for local containers and Cloudflare-derived images.
+# Base
+# https://github.com/NVIDIA/OpenShell-Community/blob/6daeacdf199afdd49753ddd149a9c259921ab1a8/sandboxes/base/Dockerfile
+
+# Shared non-root runtime for container-based agent workflows.
 FROM ubuntu:26.04
 
 SHELL ["/bin/bash", "-euo", "pipefail", "-c"]

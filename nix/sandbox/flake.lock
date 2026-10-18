@@ -78,46 +78,6 @@
       },
       "parent": []
     },
-    "moon-registry": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1787107903,
-        "narHash": "sha256-/t89hdhfhBEgPsbDbGap0kZpEoab0nZbBGEPrKWou24=",
-        "ref": "refs/heads/main",
-        "rev": "c9c84f5ec832ad3ba7ffae330c6dad14775437fa",
-        "revCount": 13008,
-        "type": "git",
-        "url": "https://mooncakes.io/git/index"
-      },
-      "original": {
-        "rev": "c9c84f5ec832ad3ba7ffae330c6dad14775437fa",
-        "type": "git",
-        "url": "https://mooncakes.io/git/index"
-      }
-    },
-    "moonbit-overlay": {
-      "inputs": {
-        "moon-registry": "moon-registry",
-        "nixpkgs": [
-          "npmpkgs",
-          "nixpkgs"
-        ],
-        "treefmt-nix": "treefmt-nix_2"
-      },
-      "locked": {
-        "lastModified": 1788418788,
-        "narHash": "sha256-YPSxTecNG+44yJZ5Z9wt7HUNQCZOkv+dfqq4b4DDC+M=",
-        "owner": "totto2727-org",
-        "repo": "moonbit-overlay",
-        "rev": "96526df52f947479dc00d0f9c06b221924f65919",
-        "type": "github"
-      },
-      "original": {
-        "owner": "totto2727-org",
-        "repo": "moonbit-overlay",
-        "type": "github"
-      }
-    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1790299684,
@@ -159,43 +119,11 @@
         "url": "https://flakehub.com/f/NixOS/nixpkgs/0.1"
       }
     },
-    "nixpkgs_4": {
-      "locked": {
-        "lastModified": 1792094642,
-        "narHash": "sha256-zp8ToDMnqZcu4o4IH9pdwXFXGp7yLm/M0dEnNWnyd7I=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "fe13242281a67641c0102cdb1087f0ebe586c7df",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "ref": "nixos-unstable",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
-    "npmpkgs": {
-      "inputs": {
-        "moonbit-overlay": "moonbit-overlay",
-        "nixpkgs": "nixpkgs_4"
-      },
-      "locked": {
-        "path": "../npm-package",
-        "type": "path"
-      },
-      "original": {
-        "path": "../npm-package",
-        "type": "path"
-      },
-      "parent": []
-    },
     "root": {
       "inputs": {
         "home-manager": "home-manager",
         "local-packages": "local-packages",
-        "nixpkgs": "nixpkgs_3",
-        "npmpkgs": "npmpkgs"
+        "nixpkgs": "nixpkgs_3"
       }
     },
     "systems": {
@@ -227,28 +155,6 @@
         "owner": "numtide",
         "repo": "treefmt-nix",
         "rev": "df3c0640565d04a0261253cdd89fce78ec50168a",
-        "type": "github"
-      },
-      "original": {
-        "owner": "numtide",
-        "repo": "treefmt-nix",
-        "type": "github"
-      }
-    },
-    "treefmt-nix_2": {
-      "inputs": {
-        "nixpkgs": [
-          "npmpkgs",
-          "moonbit-overlay",
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1786901030,
-        "narHash": "sha256-WSFCsDSE5ffgD2MqzkM2CYjeFiKhRF/dJUN8uedb6YE=",
-        "owner": "numtide",
-        "repo": "treefmt-nix",
-        "rev": "27b3b12a8e6375f28ebe122f07d230ca5459bbfa",
         "type": "github"
       },
       "original": {

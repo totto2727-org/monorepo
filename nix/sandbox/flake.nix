@@ -4,7 +4,6 @@
   inputs = {
     nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.1";
     home-manager.url = "https://flakehub.com/f/nix-community/home-manager/0.1";
-    npmpkgs.url = "path:../npm-package";
     local-packages.url = "path:../share/packages";
   };
 
@@ -12,7 +11,6 @@
     {
       self,
       nixpkgs,
-      npmpkgs,
       local-packages,
       home-manager,
     }:
@@ -33,7 +31,6 @@
             config.allowUnfree = true;
             overlays = [ local-packages.overlays.default ];
           };
-          npm = npmpkgs.lib.${system}.npmPackage;
         in
         home-manager.lib.homeManagerConfiguration {
           inherit pkgs;
@@ -45,23 +42,34 @@
               home.homeDirectory = homedir;
 
               home.packages =
-                (import ../share/packages.nix {
-                  inherit pkgs npm;
-                })
-                ++ (import ../share/packages-scripts.nix { inherit pkgs npm; }).sandbox;
+                (with pkgs; [
+                  git
+                  ripgrep
+                  sd
+                  fd
+                  nixfmt
+                  just
+                  chezmoi
+                ])
+                ++ (import ../share/packages-scripts.nix { inherit pkgs; }).sandbox;
 
-              programs = (import ../share/programs.nix { inherit pkgs; }) // {
+              programs = {
+                direnv = import ../share/direnv.nix;
+                git = import ../share/git.nix;
+                gh = (import ../share/gh.nix { inherit pkgs; }) // {
+                  extensions = [ ];
+                };
                 home-manager.enable = true;
-                zsh = (import ../share/zsh.nix { inherit pkgs; }) // {
-                  shellAliases = (import ../share/shell-aliases.nix) // {
+                zsh = {
+                  enable = true;
+                  shellAliases = {
                     home-manager = "home-manager --flake ~/nix/sandbox#${username}-${system}";
                   };
                 };
-                starship = import ../share/starship.nix;
               };
 
-              home.sessionVariables = import ../share/session-variables.nix;
-              home.sessionPath = import ../share/session-path.nix;
+              home.sessionVariables.TERM = "xterm-256color";
+              home.sessionPath = [ "$HOME/.local/bin" ];
             })
           ];
         };

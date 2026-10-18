@@ -1,4 +1,4 @@
-{ pkgs, npm }:
+{ pkgs, ... }:
 
 let
   inherit (pkgs) lib writeShellScriptBin;
@@ -88,21 +88,12 @@ let
     exec claude "$@"
   '';
 
-  # --- wrappers for sandbox
-
-  sandbox-wt = npm {
-    binName = "wt";
-    runtime = "moon";
-    packageName = "totto2727/wt";
-  };
-
 in
 {
   sandbox = [
     pkgs.monid
     pkgs.oo-cli
     docker-credential-gh
-    sandbox-wt
   ];
 
   macos = [

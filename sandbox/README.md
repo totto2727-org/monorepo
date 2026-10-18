@@ -3,7 +3,7 @@
 This guide is for contributors who build sandbox images and developers who extend them with a gateway.
 It assumes familiarity with OCI images and Nix flakes.
 
-The sandbox is a reusable, non-root coding environment for local OCI containers and Cloudflare Container-derived applications.
+The sandbox is a reusable, non-root coding environment for container-based agent workflows.
 It does not start an HTTP gateway or manage task lifecycles.
 
 ## Image layers
@@ -18,12 +18,15 @@ Workflow-specific applications, runtimes, and libraries belong to derived images
 For example, a Jcode workflow image installs Jcode and its gateway runtime itself.
 The Nix installer is fetched at build time, so the base image is not bit-for-bit reproducible.
 
-The dev build copies `nix/share`, `nix/npm-package`, and `nix/sandbox` from its build context.
+The dev build copies `nix/share` and `nix/sandbox` from its build context.
 It does not fetch a different revision of the sandbox configuration from the default branch.
 Its Dockerfile-specific ignore file permits only these inputs and excludes workstation configuration, including `nix/macos`.
 Each sandbox flake input keeps its own dependency pins, as in the macOS configuration.
 Do not add `follows` overrides unless a demonstrated compatibility requirement needs them.
-The sandbox uses the same nixpkgs release series as macOS and installs the shared `witr` package and GitHub extensions without conditional omissions.
+The sandbox uses the same nixpkgs release series as macOS, but defines its own package list directly in `nix/sandbox/flake.nix` instead of importing the shared base or development package lists.
+It keeps Git, ripgrep, sd, fd, nixfmt, Just, and chezmoi for agent workflows, plus Home Manager, direnv, GitHub CLI, and Zsh.
+The shared sandbox scripts list still provides Monid, oo, and the Docker credential helper.
+Interactive editors, file managers, fuzzy finders, process viewers, shell prompt/navigation plugins, GitHub extensions, and the `wt` and `j` wrappers are not installed.
 Language runtimes and project tools belong to each target repository's `devShell`, not the sandbox Home Manager profile.
 
 The dev build collects unreferenced Nix build dependencies before exporting its layer.
