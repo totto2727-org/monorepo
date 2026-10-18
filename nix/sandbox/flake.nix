@@ -67,7 +67,6 @@
                 };
               };
 
-              home.sessionVariables.TERM = "xterm-256color";
               home.sessionPath = [ "$HOME/.local/bin" ];
             })
           ];
