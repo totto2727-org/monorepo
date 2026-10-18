@@ -60,12 +60,7 @@
                   gitCredentialHelper.enable = true;
                 };
                 home-manager.enable = true;
-                zsh = {
-                  enable = true;
-                  shellAliases = {
-                    home-manager = "home-manager --flake ~/nix/sandbox#${username}-${system}";
-                  };
-                };
+                bash.enable = true;
               };
 
               home.sessionPath = [ "$HOME/.local/bin" ];

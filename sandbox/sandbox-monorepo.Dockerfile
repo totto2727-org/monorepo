@@ -2,7 +2,7 @@
 
 FROM ghcr.io/totto2727-org/monorepo/sandbox-dev:latest
 
-SHELL ["/home/sandbox/.nix-profile/bin/zsh", "-e", "-c"]
+SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
 
 COPY policy.yaml /etc/openshell/policy.yaml
 

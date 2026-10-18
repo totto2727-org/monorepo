@@ -25,6 +25,6 @@ nix-collect-garbage -d
 rm -rf /home/sandbox/.cache
 EOF
 
-SHELL ["/home/sandbox/.nix-profile/bin/zsh", "-e", "-c"]
+SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
 
-ENTRYPOINT ["/home/sandbox/.nix-profile/bin/zsh"]
+ENTRYPOINT ["/bin/bash"]
