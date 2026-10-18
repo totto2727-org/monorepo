@@ -96,9 +96,6 @@ let
     packageName = "totto2727/wt";
   };
 
-  sandbox-j = writeShellScriptBin "c" ''
-    exec jcode "$@"
-  '';
 in
 {
   sandbox = [
@@ -106,7 +103,6 @@ in
     pkgs.oo-cli
     docker-credential-gh
     sandbox-wt
-    sandbox-j
   ];
 
   macos = [

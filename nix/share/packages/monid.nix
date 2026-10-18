@@ -16,7 +16,6 @@ bun2nix.mkDerivation {
     hash = "sha256-RW709N7sWfkitoTRP5WvWbVAsaQOOnLQ0khXaYF+Xm4=";
   };
   module = "src/index.ts";
-  bunCompileToBytecode = false;
   bunDeps = bun2nix.fetchBunDeps {
     bunNix = ./monid-bun.nix;
   };

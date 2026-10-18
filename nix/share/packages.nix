@@ -3,6 +3,7 @@ with pkgs;
 [
   git
   # CLI
+  witr
   eza
   ripgrep
   sd
@@ -19,4 +20,3 @@ with pkgs;
   just
   chezmoi
 ]
-++ lib.optionals (pkgs ? witr) [ pkgs.witr ]

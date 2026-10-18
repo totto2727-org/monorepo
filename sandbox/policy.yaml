@@ -12,7 +12,7 @@ filesystem_policy:
     - /var/log
     - /nix
   read_write:
-    - /sandbox
+    - /home/sandbox
     - /tmp
     - /dev/null
 

@@ -16,7 +16,6 @@ bun2nix.mkDerivation {
     hash = "sha256-rLwndZ4faA3F14BDIz7KkRVzFGCtJZLrrltzqbKWTJA=";
   };
   module = "index.ts";
-  bunCompileToBytecode = false;
   bunDeps = bun2nix.fetchBunDeps {
     bunNix = ./oo-cli-bun.nix;
   };

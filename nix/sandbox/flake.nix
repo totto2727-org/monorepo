@@ -2,27 +2,10 @@
   description = "A flake to provision my environment";
 
   inputs = {
-    nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.2511";
-    home-manager = {
-      url = "https://flakehub.com/f/nix-community/home-manager/*";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    npmpkgs = {
-      url = "path:../npm-package";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    local-packages = {
-      url = "path:../share/packages";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    moonbit-overlay = {
-      url = "github:totto2727/moonbit-overlay";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    vite-plus-overlay = {
-      url = "github:ryoppippi/nix-vite-plus";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.1";
+    home-manager.url = "https://flakehub.com/f/nix-community/home-manager/0.1";
+    npmpkgs.url = "path:../npm-package";
+    local-packages.url = "path:../share/packages";
   };
 
   outputs =
@@ -32,12 +15,10 @@
       npmpkgs,
       local-packages,
       home-manager,
-      moonbit-overlay,
-      vite-plus-overlay,
     }:
     let
       username = "sandbox";
-      homedir = "/sandbox";
+      homedir = "/home/${username}";
       stateVersion = "25.11";
       systems = [
         "aarch64-linux"
@@ -50,11 +31,7 @@
           pkgs = import nixpkgs {
             inherit system;
             config.allowUnfree = true;
-            overlays = [
-              local-packages.overlays.default
-              moonbit-overlay.overlays.default
-              vite-plus-overlay.overlays.default
-            ];
+            overlays = [ local-packages.overlays.default ];
           };
           npm = npmpkgs.lib.${system}.npmPackage;
         in
@@ -71,19 +48,10 @@
                 (import ../share/packages.nix {
                   inherit pkgs npm;
                 })
-                ++ [
-                  pkgs.nodejs_24
-                  pkgs.pnpm
-                  (pkgs.vite-plus.override { nodejs = pkgs.nodejs_24; })
-                ]
                 ++ (import ../share/packages-scripts.nix { inherit pkgs npm; }).sandbox;
 
               programs = (import ../share/programs.nix { inherit pkgs; }) // {
                 home-manager.enable = true;
-                # gh-stack is not packaged in the sandbox's pinned nixpkgs.
-                gh = (import ../share/gh.nix { inherit pkgs; }) // {
-                  extensions = [ pkgs.gh-poi ];
-                };
                 zsh = (import ../share/zsh.nix { inherit pkgs; }) // {
                   shellAliases = (import ../share/shell-aliases.nix) // {
                     home-manager = "home-manager --flake ~/nix/sandbox#${username}-${system}";

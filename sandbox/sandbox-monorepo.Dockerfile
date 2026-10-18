@@ -2,7 +2,7 @@
 
 FROM ghcr.io/totto2727-org/monorepo/sandbox-dev:latest
 
-SHELL ["/sandbox/.nix-profile/bin/zsh", "-e", "-c"]
+SHELL ["/home/sandbox/.nix-profile/bin/zsh", "-e", "-c"]
 
 COPY policy.yaml /etc/openshell/policy.yaml
 
@@ -15,4 +15,4 @@ nix develop --command true
 direnv allow
 EOF
 
-WORKDIR /sandbox/monorepo
+WORKDIR /home/sandbox/monorepo
