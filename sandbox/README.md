@@ -8,17 +8,16 @@ It does not start an HTTP gateway or manage task lifecycles.
 
 ## Image layers
 
-| Image              | Contents                                                             | Default entrypoint |
-| ------------------ | -------------------------------------------------------------------- | ------------------ |
-| `sandbox-base`     | Ubuntu 26.04, network tools, Git, and a single-user Nix installation | `/bin/bash`        |
-| `sandbox-dev`      | Base plus the sandbox Home Manager configuration                     | `/bin/bash`        |
-| `sandbox-monorepo` | Dev plus a monorepo checkout and OpenShell policy                    | Inherited Bash     |
+| Image          | Contents                                                             | Default entrypoint |
+| -------------- | -------------------------------------------------------------------- | ------------------ |
+| `nix`          | Ubuntu 26.04, network tools, Git, and a single-user Nix installation | `/bin/bash`        |
+| `sandbox-base` | Nix image plus the sandbox Home Manager configuration                | `/bin/bash`        |
 
 Workflow-specific applications, runtimes, and libraries belong to derived images, not these generic sandbox layers.
 For example, a Jcode workflow image installs Jcode and its gateway runtime itself.
-The Nix installer is fetched at build time, so the base image is not bit-for-bit reproducible.
+The Nix installer is fetched at build time, so the `nix` image is not bit-for-bit reproducible.
 
-The dev build copies `nix/share` and `nix/sandbox` from its build context.
+The `sandbox-base` build copies `nix/share` and `nix/sandbox` from its build context.
 It does not fetch a different revision of the sandbox configuration from the default branch.
 Its Dockerfile-specific ignore file permits only these inputs and excludes workstation configuration, including `nix/macos`.
 Each sandbox flake input keeps its own dependency pins, as in the macOS configuration.
@@ -32,25 +31,24 @@ The shared sandbox scripts list still provides Monid, oo, and the Docker credent
 Interactive editors, file managers, fuzzy finders, process viewers, shell prompt/navigation plugins, GitHub extensions, and the `wt` and `j` wrappers are not installed.
 Language runtimes and project tools belong to each target repository's `devShell`, not the sandbox Home Manager profile.
 
-The dev build collects unreferenced Nix build dependencies before exporting its layer.
+The `sandbox-base` build collects unreferenced Nix build dependencies before exporting its layer.
 
 ## Build from the repository root
 
 Build the layers in order with Apple container:
 
 ```bash
+just --justfile sandbox/Justfile docker-build-nix
 just --justfile sandbox/Justfile docker-build-sandbox-base
-just --justfile sandbox/Justfile docker-build-sandbox-dev
-just --justfile sandbox/Justfile docker-build-sandbox-monorepo
 ```
 
 Local recipes do not select an architecture; the container runtime uses its native default.
 Use the root `Justfile` for the ordered Docker build workflow.
 
 The GitHub deployment workflow builds both `linux/amd64` and `linux/arm64`.
-The base and monorepo Dockerfiles use `sandbox` as their context.
-The dev Dockerfile uses the repository root as its context.
-To select another base image for a dev build, pass `--build-arg SANDBOX_BASE_IMAGE=<image>` directly to the build command.
+The `nix` Dockerfile uses `sandbox` as its context.
+The `sandbox-base` Dockerfile uses the repository root as its context.
+To select another Nix image for a `sandbox-base` build, pass `--build-arg NIX_IMAGE=<image>` directly to the build command.
 The root `Justfile` also provides the ordered Docker build workflow.
 
 ## Validate
@@ -62,14 +60,14 @@ nix eval ./nix/sandbox#homeConfigurations.sandbox-aarch64-linux.activationPackag
 nix eval ./nix/sandbox#homeConfigurations.sandbox-x86_64-linux.activationPackage.drvPath --raw
 ```
 
-After building the base, check its non-interactive runtime contract:
+After building `nix`, check its non-interactive runtime contract:
 
 ```bash
-container run --rm --entrypoint /bin/bash ghcr.io/totto2727-org/monorepo/sandbox-base:latest -euc 'test "$(id -un)" = sandbox; test "$HOME" = /home/sandbox; test -w "$HOME"; test -w /nix; nix --version'
+container run --rm --entrypoint /bin/bash ghcr.io/totto2727-org/monorepo/nix:latest -euc 'test "$(id -un)" = sandbox; test "$HOME" = /home/sandbox; test -w "$HOME"; test -w /nix; nix --version'
 ```
 
 Replace `container` with `docker` to run the same check with Docker.
-For the dev image, check the default Bash and shared CLI tools.
+For `sandbox-base`, check the default Bash and shared CLI tools.
 Enter the target repository's development shell with `nix develop` before checking its language runtimes and task runner.
 These checks do not verify provider authentication or an end-to-end coding task.
 
@@ -78,7 +76,7 @@ These checks do not verify provider authentication or an end-to-end coding task.
 - The runtime user and group are `sandbox`, with writable home directory `/home/sandbox`.
 - `HOME=/home/sandbox` and `USER=sandbox` are set for non-interactive processes.
 - `PATH` contains `/home/sandbox/.local/bin` and `/home/sandbox/.nix-profile/bin`.
-- A gateway derived from either image must supply its own runtime; the sandbox does not preinstall Node.js or Vite+.
+- A gateway derived from `nix` or `sandbox-base` must supply its own runtime; the sandbox does not preinstall Node.js or Vite+.
 - Every gateway must supply its own command and listening port.
 - A derived image installs any runtime libraries its applications need.
 - The application owns gateway authentication and any agent bridge protocol.

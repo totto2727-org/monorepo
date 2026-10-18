@@ -1,12 +1,8 @@
 default:
     @just --list
 
-docker-build-sandbox-base:
-    docker build --progress=plain -t ghcr.io/totto2727-org/monorepo/sandbox-base:latest -f ./sandbox/sandbox-base.Dockerfile ./sandbox
+docker-build-nix:
+    docker build --progress=plain -t ghcr.io/totto2727-org/monorepo/nix:latest -f ./sandbox/nix.Dockerfile ./sandbox
 
-docker-build-sandbox-dev: docker-build-sandbox-base
-    docker build --progress=plain -t ghcr.io/totto2727-org/monorepo/sandbox-dev:latest -f ./sandbox/sandbox-dev.Dockerfile .
-
-docker-build-sandbox-monorepo: docker-build-sandbox-dev
-    docker build --progress=plain -t ghcr.io/totto2727-org/monorepo/sandbox-monorepo:latest -f ./sandbox/sandbox-monorepo.Dockerfile ./sandbox
-
+docker-build-sandbox-base: docker-build-nix
+    docker build --progress=plain -t ghcr.io/totto2727-org/monorepo/sandbox-base:latest -f ./sandbox/sandbox-base.Dockerfile .

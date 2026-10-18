@@ -12,7 +12,7 @@ env:
   IMAGE_PREFIX: ghcr.io/totto2727-org/monorepo
 
 jobs:
-  build-base:
+  build-nix:
     strategy:
       fail-fast: false
       matrix:
@@ -34,6 +34,55 @@ jobs:
       - uses: ./.github/actions/docker-build-by-digest
         with:
           context: ./sandbox
+          file: ./sandbox/nix.Dockerfile
+          image: ${{ env.IMAGE_PREFIX }}/nix
+          platform: ${{ matrix.platform }}
+          artifact-name: digests-nix-${{ matrix.id }}
+          registry: ${{ env.REGISTRY }}
+          registry-username: ${{ github.actor }}
+          registry-password: ${{ secrets.GITHUB_TOKEN }}
+
+  merge-nix:
+    needs: build-nix
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: ./.github/actions/docker-merge-manifests
+        with:
+          image: ${{ env.IMAGE_PREFIX }}/nix
+          artifact-pattern: digests-nix-*
+          registry: ${{ env.REGISTRY }}
+          registry-username: ${{ github.actor }}
+          registry-password: ${{ secrets.GITHUB_TOKEN }}
+
+  build-base:
+    needs: merge-nix
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux/amd64
+            runs-on: ubuntu-latest
+            id: amd64
+          - platform: linux/arm64
+            runs-on: ubuntu-24.04-arm
+            id: arm64
+    runs-on: ${{ matrix.runs-on }}
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: ./.github/actions/docker-build-by-digest
+        with:
+          context: .
           file: ./sandbox/sandbox-base.Dockerfile
           image: ${{ env.IMAGE_PREFIX }}/sandbox-base
           platform: ${{ matrix.platform }}
@@ -56,104 +105,6 @@ jobs:
         with:
           image: ${{ env.IMAGE_PREFIX }}/sandbox-base
           artifact-pattern: digests-base-*
-          registry: ${{ env.REGISTRY }}
-          registry-username: ${{ github.actor }}
-          registry-password: ${{ secrets.GITHUB_TOKEN }}
-
-  build-dev:
-    needs: merge-base
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - platform: linux/amd64
-            runs-on: ubuntu-latest
-            id: amd64
-          - platform: linux/arm64
-            runs-on: ubuntu-24.04-arm
-            id: arm64
-    runs-on: ${{ matrix.runs-on }}
-    timeout-minutes: 30
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - uses: ./.github/actions/docker-build-by-digest
-        with:
-          context: .
-          file: ./sandbox/sandbox-dev.Dockerfile
-          image: ${{ env.IMAGE_PREFIX }}/sandbox-dev
-          platform: ${{ matrix.platform }}
-          artifact-name: digests-dev-${{ matrix.id }}
-          registry: ${{ env.REGISTRY }}
-          registry-username: ${{ github.actor }}
-          registry-password: ${{ secrets.GITHUB_TOKEN }}
-
-  merge-dev:
-    needs: build-dev
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - uses: ./.github/actions/docker-merge-manifests
-        with:
-          image: ${{ env.IMAGE_PREFIX }}/sandbox-dev
-          artifact-pattern: digests-dev-*
-          registry: ${{ env.REGISTRY }}
-          registry-username: ${{ github.actor }}
-          registry-password: ${{ secrets.GITHUB_TOKEN }}
-
-  build-monorepo:
-    needs: merge-dev
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - platform: linux/amd64
-            runs-on: ubuntu-latest
-            id: amd64
-          - platform: linux/arm64
-            runs-on: ubuntu-24.04-arm
-            id: arm64
-    runs-on: ${{ matrix.runs-on }}
-    timeout-minutes: 30
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - uses: ./.github/actions/docker-build-by-digest
-        with:
-          context: ./sandbox
-          file: ./sandbox/sandbox-monorepo.Dockerfile
-          image: ${{ env.IMAGE_PREFIX }}/sandbox-monorepo
-          platform: ${{ matrix.platform }}
-          artifact-name: digests-monorepo-${{ matrix.id }}
-          registry: ${{ env.REGISTRY }}
-          registry-username: ${{ github.actor }}
-          registry-password: ${{ secrets.GITHUB_TOKEN }}
-
-  merge-monorepo:
-    needs: build-monorepo
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - uses: ./.github/actions/docker-merge-manifests
-        with:
-          image: ${{ env.IMAGE_PREFIX }}/sandbox-monorepo
-          artifact-pattern: digests-monorepo-*
           registry: ${{ env.REGISTRY }}
           registry-username: ${{ github.actor }}
           registry-password: ${{ secrets.GITHUB_TOKEN }}

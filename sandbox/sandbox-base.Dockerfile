@@ -1,43 +1,30 @@
 # syntax=docker/dockerfile:1
 
-# Base
-# https://github.com/NVIDIA/OpenShell-Community/blob/6daeacdf199afdd49753ddd149a9c259921ab1a8/sandboxes/base/Dockerfile
+ARG NIX_IMAGE=ghcr.io/totto2727-org/monorepo/nix:latest
+FROM ${NIX_IMAGE}
 
-# Shared non-root runtime for container-based agent workflows.
-FROM ubuntu:26.04
+# Keep every local flake input in the same source snapshot.
+COPY --chown=sandbox:sandbox nix/share /home/sandbox/nix/share
+COPY --chown=sandbox:sandbox nix/sandbox /home/sandbox/nix/sandbox
 
-SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
-
+ARG TARGETARCH
 RUN <<EOF
-apt-get update
-apt-get install -y --no-install-recommends \
-  ca-certificates curl gcc make \
-  dnsutils iproute2 iptables iputils-ping net-tools netcat-openbsd \
-  openssh-sftp-server procps traceroute \
-  xz-utils git
-rm -rf /var/lib/apt/lists/*
+case "$TARGETARCH" in
+  amd64) NIX_SYSTEM=x86_64-linux ;;
+  arm64) NIX_SYSTEM=aarch64-linux ;;
+  *) echo "unsupported TARGETARCH: $TARGETARCH" >&2; exit 1 ;;
+esac
 
-groupadd -r supervisor
-useradd -r -g supervisor -s /usr/sbin/nologin supervisor
-groupadd -r sandbox
-useradd -r -m -g sandbox -d /home/sandbox -s /bin/bash sandbox
+# A Git flake preserves sibling path inputs within the source snapshot.
+git -C /home/sandbox/nix init
+git -C /home/sandbox/nix add .
+nix run --inputs-from ~/nix/sandbox home-manager -- switch --flake ~/nix/sandbox#sandbox-${NIX_SYSTEM}
+home-manager --version
 
-mkdir -p /etc/nix /nix
-printf 'experimental-features = nix-command flakes\n' > /etc/nix/nix.conf
-chown sandbox:sandbox /nix
-EOF
-
-USER sandbox
-WORKDIR /home/sandbox
-ENV HOME=/home/sandbox USER=sandbox
-ENV PATH="/home/sandbox/.local/bin:/home/sandbox/.nix-profile/bin:$PATH"
-
-RUN <<EOF
-curl -fsSL https://nixos.org/nix/install -o /tmp/install-nix.sh
-sh /tmp/install-nix.sh --no-daemon --yes --no-channel-add
-nix --version
-rm -f /tmp/install-nix.sh
+nix-collect-garbage -d
 rm -rf /home/sandbox/.cache
 EOF
+
+SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
 
 ENTRYPOINT ["/bin/bash"]
