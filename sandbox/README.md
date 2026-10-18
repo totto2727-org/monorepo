@@ -11,7 +11,7 @@ It does not start an HTTP gateway or manage task lifecycles.
 | Image              | Contents                                                             | Default entrypoint                   |
 | ------------------ | -------------------------------------------------------------------- | ------------------------------------ |
 | `sandbox-base`     | Ubuntu 26.04, network tools, Git, and a single-user Nix installation | `/bin/bash`                          |
-| `sandbox-dev`      | Base plus the sandbox Home Manager configuration and public dotfiles | `/home/sandbox/.nix-profile/bin/zsh` |
+| `sandbox-dev`      | Base plus the sandbox Home Manager configuration                     | `/home/sandbox/.nix-profile/bin/zsh` |
 | `sandbox-monorepo` | Dev plus a monorepo checkout and OpenShell policy                    | Inherited Zsh                        |
 
 Workflow-specific applications, runtimes, and libraries belong to derived images, not these generic sandbox layers.
@@ -24,7 +24,8 @@ Its Dockerfile-specific ignore file permits only these inputs and excludes works
 Each sandbox flake input keeps its own dependency pins, as in the macOS configuration.
 Do not add `follows` overrides unless a demonstrated compatibility requirement needs them.
 The sandbox uses the same nixpkgs release series as macOS, but defines its own package list directly in `nix/sandbox/flake.nix` instead of importing the shared base or development package lists.
-It keeps Git, ripgrep, sd, fd, nixfmt, Just, and chezmoi for agent workflows, plus Home Manager, direnv, GitHub CLI, and Zsh.
+It keeps Git, ripgrep, sd, fd, nixfmt, and Just for agent workflows, plus Home Manager, direnv, GitHub CLI, and Zsh.
+It does not install chezmoi or apply personal dotfiles.
 The shared sandbox scripts list still provides Monid, oo, and the Docker credential helper.
 Interactive editors, file managers, fuzzy finders, process viewers, shell prompt/navigation plugins, GitHub extensions, and the `wt` and `j` wrappers are not installed.
 Language runtimes and project tools belong to each target repository's `devShell`, not the sandbox Home Manager profile.

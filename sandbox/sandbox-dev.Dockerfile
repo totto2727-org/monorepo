@@ -18,12 +18,9 @@ esac
 # A Git flake preserves sibling path inputs within the source snapshot.
 git -C /home/sandbox/nix init
 git -C /home/sandbox/nix add .
-nix build ~/nix/sandbox#homeConfigurations.sandbox-${NIX_SYSTEM}.activationPackage --out-link /home/sandbox/home-manager-result
-/home/sandbox/home-manager-result/activate
+nix run --inputs-from ~/nix/sandbox home-manager -- switch --flake ~/nix/sandbox#sandbox-${NIX_SYSTEM}
 home-manager --version
 
-chezmoi init https://github.com/totto2727-dotfiles/chezmoi.git
-chezmoi apply
 nix-collect-garbage -d
 rm -rf /home/sandbox/.cache
 EOF

@@ -49,7 +49,6 @@
                   fd
                   nixfmt
                   just
-                  chezmoi
                 ])
                 ++ (import ../share/packages-scripts.nix { inherit pkgs; }).sandbox;
 
