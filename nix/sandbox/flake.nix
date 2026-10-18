@@ -54,7 +54,7 @@
 
               programs = {
                 direnv = import ../share/direnv.nix;
-                git = import ../share/git.nix;
+                git.enable = true;
                 gh = (import ../share/gh.nix { inherit pkgs; }) // {
                   extensions = [ ];
                 };
