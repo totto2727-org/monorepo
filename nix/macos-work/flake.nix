@@ -5,32 +5,18 @@
     nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.1";
     home-manager = {
       url = "https://flakehub.com/f/nix-community/home-manager/0.1";
-      inputs.nixpkgs.follows = "nixpkgs";
     };
     nix-darwin = {
       url = "https://flakehub.com/f/nix-darwin/nix-darwin/0.1";
-      inputs.nixpkgs.follows = "nixpkgs";
     };
     npmpkgs = {
       url = "path:../npm-package";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.moonbit-overlay.follows = "moonbit-overlay";
     };
     local-packages = {
       url = "path:../share/packages";
-      inputs.nixpkgs.follows = "nixpkgs";
     };
     my = {
       url = "path:../share/my";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    moonbit-overlay = {
-      url = "github:totto2727/moonbit-overlay";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    vite-plus-overlay = {
-      url = "github:ryoppippi/nix-vite-plus";
-      inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
@@ -43,8 +29,6 @@
       my,
       home-manager,
       nix-darwin,
-      moonbit-overlay,
-      vite-plus-overlay,
     }:
     let
       hostname = "AMADH5CQH14H3";
@@ -57,8 +41,6 @@
         overlays = [
           local-packages.overlays.default
           my.overlays.default
-          moonbit-overlay.overlays.default
-          vite-plus-overlay.overlays.default
         ];
       };
       npm = npmpkgs.lib.${pkgs.system}.npmPackage;
