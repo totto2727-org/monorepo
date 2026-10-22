@@ -66,13 +66,6 @@ let
     exec ${pkgs.oo-cli}/bin/oo "$@"
   '';
 
-  macos-wt = writeShellScriptBin "wt" ''
-    set -e
-
-    export GITHUB_PERSONAL_ACCESS_TOKEN="$(gh auth token)"
-    exec ${pkgs.wt}/bin/wt "$@"
-  '';
-
   macos-c = writeShellScriptBin "c" ''
     exec ${pkgs.codex}/bin/codex "$@"
   '';
@@ -100,14 +93,12 @@ in
     macos-monid
     macos-oo
     docker-credential-gh
-    macos-wt
     macos-c
     macos-j
   ];
 
   macos-work = [
     docker-credential-gh
-    macos-wt
     macos-work-c
   ];
 }

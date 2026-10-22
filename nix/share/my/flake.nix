@@ -3,18 +3,8 @@
 
   inputs = {
     nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.1";
-    # The published wt lock predates one of its Mooncakes dependencies.
-    moon-registry = {
-      url = "git+https://mooncakes.io/git/index";
-      flake = false;
-    };
     flowdeck = {
       url = "https://flakehub.com/f/totto2727-org/flowdeck/0.1";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    wt = {
-      url = "https://flakehub.com/f/totto2727-org/wt/0.1";
-      inputs.moon-registry.follows = "moon-registry";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -24,13 +14,11 @@
       self,
       nixpkgs,
       flowdeck,
-      wt,
       ...
     }:
     let
       applications = [
         flowdeck
-        wt
       ];
       supportedSystems = [
         "aarch64-darwin"
