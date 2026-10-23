@@ -3,6 +3,7 @@
 Use the common flake for cross-platform applications and opt into the macOS flake separately for GlossShift.
 Both expose overlays and individually selectable packages, without installing every application automatically.
 Archived application repositories are excluded from the catalog inputs, overlays, and packages.
+MoonBit-built applications, including `wt`, are excluded to avoid MoonBit builds during Nix provisioning.
 
 ## Usage
 
@@ -32,14 +33,14 @@ In a consumer under `nix/`, add the shared inputs and use their overlays to sele
     in
     {
       homeManagerModules.personal-apps = {
-        home.packages = [ pkgs.wt pkgs.glossshift ];
+        home.packages = [ pkgs.flowdeck pkgs.glossshift ];
       };
     };
 }
 ```
 
 Import `homeManagerModules.personal-apps` in a Home Manager configuration to install the selected tools, including both GlossShift binaries and `GlossShift.app`.
-The repository's [personal macOS configuration](../../macos/flake.nix) applies both overlays and retains the GitHub-token wrapper around `wt`.
+The repository's [personal macOS configuration](../../macos/flake.nix) applies both overlays.
 For Linux, omit the `my-macos` input and overlay.
 
 ### Updating applications
@@ -47,7 +48,6 @@ For Linux, omit the `my-macos` input and overlay.
 The upstream workflows publish pushes to `main` as FlakeHub `0.1` rolling releases.
 The URL selects the latest published release in that series, not a literal Git branch URL, and `flake.lock` pins the resolved source until explicitly updated.
 A failed or disabled upstream publication therefore does not advance the available release.
-The common flake also pins a Mooncakes registry index because the published `wt` lock predates a required dependency version.
 See the official [rolling release documentation](https://docs.determinate.systems/flakehub/concepts/semver/) and [publishing action](https://github.com/DeterminateSystems/flakehub-push#rolling-releases).
 
 From the repository root, refresh the catalogs, then refresh the consuming configurations:
@@ -71,14 +71,14 @@ The common flake has no dependency on the macOS flake.
 
 ### `packages.<system>.<name>`
 
-Select packages directly when an overlay is unnecessary, for example `my.packages.aarch64-darwin.wt` or `my-macos.packages.aarch64-darwin.glossshift`.
+Select packages directly when an overlay is unnecessary, for example `my.packages.aarch64-darwin.flowdeck` or `my-macos.packages.aarch64-darwin.glossshift`.
 The catalog deliberately has no `default` package because it represents independent applications.
 
-| Flake      | Systems                          | Packages                        |
-| ---------- | -------------------------------- | ------------------------------- |
-| `my`       | `aarch64-darwin`, `x86_64-linux` | `flowdeck`, `topcoat-cli`, `wt` |
-| `my`       | `aarch64-linux`                  | `flowdeck`, `topcoat-cli`       |
-| `my/macos` | `aarch64-darwin`                 | `glossshift`, `gshift`          |
+| Flake      | Systems                          | Packages                  |
+| ---------- | -------------------------------- | ------------------------- |
+| `my`       | `aarch64-darwin`, `x86_64-linux` | `flowdeck`, `topcoat-cli` |
+| `my`       | `aarch64-linux`                  | `flowdeck`, `topcoat-cli` |
+| `my/macos` | `aarch64-darwin`                 | `glossshift`, `gshift`    |
 
 `gshift` is the upstream variant with the CLI as its main program.
 Both GlossShift variants contain the same application binaries, so install only one variant in a profile.

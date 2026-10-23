@@ -1,4 +1,4 @@
-{ pkgs, moonbit }:
+{ pkgs }:
 
 {
   npmPackage =
@@ -9,7 +9,6 @@
       runtime ? "bun",
       registry ? if runtime == "uv" then "https://pypi.flatt.tech/simple/" else "https://npm.flatt.tech",
       additionalArgs ? "",
-      target ? "native",
     }:
     let
       packageSpec = "${packageName}@${version}";
@@ -35,10 +34,6 @@
         go = ''
           export PATH="${pkgs.lib.makeBinPath [ pkgs.go ]}:$PATH"
           exec ${pkgs.go}/bin/go run ${additionalArgs} ${packageSpec} "$@"
-        '';
-        moon = ''
-          export PATH="${pkgs.lib.makeBinPath [ moonbit ]}:$PATH"
-          exec ${moonbit}/bin/moonx --target ${target} ${additionalArgs} ${packageSpec} "$@"
         '';
       };
       script =
