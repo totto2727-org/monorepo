@@ -19,4 +19,12 @@ with pkgs;
   nixfmt
   just
   chezmoi
+  (npm {
+    binName = "monid";
+    packageName = "@monid-ai/cli";
+  })
+  (npm {
+    binName = "oo";
+    packageName = "@oomol-lab/oo-cli";
+  })
 ]

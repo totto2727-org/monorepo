@@ -1,16 +1,11 @@
 {
   inputs = {
     nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.1";
-    vite-plus-overlay = {
-      url = "github:ryoppippi/nix-vite-plus";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
   outputs =
     {
       nixpkgs,
-      vite-plus-overlay,
       ...
     }:
     let
@@ -25,22 +20,13 @@
       devShells = forEachSystem (
         system:
         let
-          pkgs = import nixpkgs {
+          pkgs = import nixpkgs{
             inherit system;
-            overlays = [
-              vite-plus-overlay.overlays.default
-            ];
           };
         in
         {
           default = pkgs.mkShell {
             packages = [
-              # JS
-              pkgs.bun # Pulumi directly executes TypeScript with Bun.
-              pkgs.deno
-              pkgs.nodejs_24
-              pkgs.pnpm
-              pkgs.vite-plus
               # Nix
               pkgs.nixfmt
               # SQL
@@ -52,13 +38,6 @@
             ];
 
             shellHook = ''
-              ${pkgs.lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
-                export NIX_LDFLAGS="$NIX_LDFLAGS -no_compact_unwind"
-              ''}
-
-              # Enable vp env
-              vp env setup
-              eval "$(vp env print)"
               # Enable Git Hook
               vp config
             '';

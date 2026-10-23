@@ -128,6 +128,7 @@
                                       eval "$(/opt/homebrew/bin/brew shellenv)"
 
                                       . ~/.orbstack/shell/init.zsh
+                                      . ~/.vite-plus/env
 
                                       if [[ ! -o interactive ]]; then
                                         return
