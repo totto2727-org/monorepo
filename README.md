@@ -21,21 +21,31 @@ A multi-language monorepo using Node.js, pnpm workspaces, and Vite+.
 
 ### Requirements
 
-- `Nix`: `https://nixos.org/download/`
+- `Vite+`: `curl -fsSL https://vite.plus | bash`
+- `Nix`: `https://nixos.org/download/` (for non-JavaScript tools)
 - `atlas`: `curl -sSf https://atlasgo.sh | sh`
 - `pulumi`: `brew install pulumi`
 
 ### Installation
 
 ```bash
-# Enter development environment
+# Enter the environment for non-JavaScript tools
 nix develop
+
+# Let Vite+ resolve Node.js and the package manager from the project
+vp env install
 
 # Install dependencies
 vp install --frozen-lockfile
 ```
 
-Run `direnv allow` once to load the development environment automatically.
+Run `direnv allow` once to load the Nix development environment automatically.
+Vite+, Node.js, pnpm, Bun, and Deno are not installed or wrapped by Nix.
+Deno is not a default development-environment dependency.
+This policy does not establish that Vite+ can install or manage Deno.
+Runtime provisioning gaps are tracked in [#387](https://github.com/totto2727-org/monorepo/issues/387).
+The macOS `install-vite-plus` Just task uses the same official installer.
+CI uses `voidzero-dev/setup-vp` without version or package-manager overrides, then installs dependencies with the shared action's lockfile policy.
 
 ## Development Commands
 
@@ -45,7 +55,7 @@ Run `direnv allow` once to load the development environment automatically.
 
 Dependency updates stay within compatible manifest and catalog ranges by default. Do not use release-age exclusions or general dependency overrides to force a newer release to install.
 
-- pnpm is the sole repository package manager, pinned to `11.21.0` in `package.json` and supplied by the existing root Nix input. Vite+ remains unchanged and dispatches `vp install` to pnpm. Workspace membership and catalogs live in `pnpm-workspace.yaml`, and `pnpm-lock.yaml` is the only repository dependency lockfile.
+- pnpm is the sole repository package manager, pinned to `11.21.0` in `package.json` and resolved by the official Vite+ toolchain. Vite+ dispatches `vp install` to pnpm. Workspace membership and catalogs live in `pnpm-workspace.yaml`, and `pnpm-lock.yaml` is the only repository dependency lockfile.
 - Preserve the existing registry configuration and [pnpm's release-age safeguards](https://pnpm.io/settings#minimumreleaseage). pnpm 11 defaults to a 24-hour wait, so no `minimumReleaseAge` setting is needed. Keep `minimumReleaseAgeStrict: true` to reject unapproved immature versions in non-interactive installs. Do not lower the gate or add exclusions.
 - Use compatible caret ranges and the latest compatible mature release through the existing registry when deliberately refreshing the lockfile with `vp install --no-frozen-lockfile`. Use `vp install --frozen-lockfile` for reproducible local and CI installs. Do not force a release through by changing security settings or adding automatic exclusions.
 - The `vite` core alias and exact bundled `vitest` override are the only dependency override exceptions, as required by [Vite+ manual installation](https://viteplus.dev/guide/local-cli#manual-installation). Use the official pnpm-managed keys `vite@*` and `vitest@*` so overrides do not rewrite `catalog:` references. Keep them aligned when [upgrading Vite+](https://viteplus.dev/guide/upgrade-project#updating-the-vitest-pin). The coverage provider must also match the bundled Vitest version because it declares an exact Vitest peer.
@@ -57,7 +67,7 @@ Dependency updates stay within compatible manifest and catalog ranges by default
 
 ### Bun Runtime Scope
 
-Node.js is the default JavaScript runtime. Bun remains in the development shell because `infra/aws/Pulumi.yaml` and `infra/cloudflare/Pulumi.yaml` select it to execute TypeScript directly. These projects still install dependencies through pnpm via Vite+. Shared global-tool wrappers and system runtime installations under `nix/` are separate from repository dependency management and are not migrated by this change. Historical ADRs and runtime compatibility examples may still mention Bun.
+Node.js is the default JavaScript runtime. `infra/aws/Pulumi.yaml` and `infra/cloudflare/Pulumi.yaml` select Bun to execute TypeScript directly. These projects still install dependencies through pnpm via Vite+. Use the official Vite+ entry point for Node.js and supported package-manager management, not Nix development packages or global-tool wrappers. This does not imply support for every JavaScript runtime. Historical ADRs and runtime compatibility examples may still mention Bun or Deno.
 
 ## License
 

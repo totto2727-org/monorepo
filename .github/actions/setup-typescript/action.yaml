@@ -1,5 +1,5 @@
 name: Setup TypeScript
-description: Install workspace packages with Vite+ from the root Nix development shell.
+description: Install workspace packages with the official Vite+ toolchain.
 
 inputs:
   frozen:
@@ -17,6 +17,11 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Set up Vite+
+      uses: voidzero-dev/setup-vp@68f39c78aaf39be468cabd2afb09c162574c84af # v1.21.2
+      with:
+        run-install: false
+
     - name: Install packages
       shell: bash
       env:
@@ -29,5 +34,4 @@ runs:
           false) lockfile_args+=(--no-frozen-lockfile) ;;
           *) echo "::error::The frozen input must be 'true' or 'false'."; exit 1 ;;
         esac
-        eval "$(nix print-dev-env "$GITHUB_WORKSPACE#default")"
         vp install "${lockfile_args[@]}" $VP_INSTALL_ARGS
