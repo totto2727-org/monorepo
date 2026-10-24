@@ -16,12 +16,14 @@
         node = ''
           export npm_config_loglevel=error
           export npm_config_registry=${registry}
-          exec npx --yes ${additionalArgs} ${packageSpec} "$@"
+          export PATH="${pkgs.lib.makeBinPath [ pkgs.nodejs ]}:$PATH"
+          exec ${pkgs.nodejs}/bin/npx --yes ${additionalArgs} ${packageSpec} "$@"
         '';
         bun = ''
           export npm_config_loglevel=error
           export npm_config_registry=${registry}
-          exec bunx --bun --yes ${additionalArgs} ${packageSpec} "$@"
+          export PATH="${pkgs.lib.makeBinPath [ pkgs.bun ]}:$PATH"
+          exec ${pkgs.bun}/bin/bunx --bun --yes ${additionalArgs} ${packageSpec} "$@"
         '';
         uv = ''
           export RUST_LOG=uv=error
