@@ -20,7 +20,7 @@
       devShells = forEachSystem (
         system:
         let
-          pkgs = import nixpkgs {
+          pkgs = import nixpkgs{
             inherit system;
           };
         in
@@ -38,9 +38,8 @@
             ];
 
             shellHook = ''
-              ${pkgs.lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
-                export NIX_LDFLAGS="$NIX_LDFLAGS -no_compact_unwind"
-              ''}
+              # Enable Git Hook
+              vp config
             '';
           };
         }
