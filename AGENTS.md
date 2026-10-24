@@ -126,7 +126,10 @@ run: {
 
 ### Package Management
 
-- Node.js is the default runtime, pnpm is the sole repository package manager, and Vite+ remains the task and package-management entry point.
+- Node.js is the default runtime, pnpm is the sole repository package manager, and the official Vite+ toolchain is the JavaScript entry point.
+- Install Vite+ with `curl -fsSL https://vite.plus | bash`, then use project settings for Node.js and package-manager resolution. Do not install or wrap Vite+, Node.js, pnpm, Bun, or Deno with Nix.
+- Deno is not a default development-environment dependency. Do not claim that Vite+ installs or manages Deno without verified support. Track unresolved runtime provisioning in [#387](https://github.com/totto2727-org/monorepo/issues/387).
+- CI uses the official `voidzero-dev/setup-vp` action without `version`, `node-version`, or `package-manager` overrides. Keep `run-install: false` and preserve the shared setup action's explicit lockfile and install-argument handling. Do not add `actions/setup-node`.
 - Workspace membership, centralized catalogs, overrides, build-script permissions, and the strict 24-hour release-age policy live in root `pnpm-workspace.yaml`.
 - Install from the repository root with `vp install --frozen-lockfile`. Refresh `pnpm-lock.yaml` deliberately with `vp install --no-frozen-lockfile` without bypassing release-age safeguards.
 - Preserve compatible caret ranges and the documented Vite+ and TypeScript compiler API compatibility boundaries in [README.md](./README.md#dependency-policy).
@@ -148,8 +151,8 @@ Other installed skills are not bundled with this repository and must be provided
 
 ### Toolchain
 
-- **Nix flakes + direnv** - Development environment for local use, CI, and sandbox images
-- **Vite+** (`vp`) - Unified toolchain wrapping Vite, Vitest, and monorepo task orchestration
+- **Nix flakes + direnv** - Non-JavaScript development tools for local use, CI, and sandbox images
+- **Vite+** (`vp`) - Official Node.js and supported package-manager management, Vite, Vitest, and monorepo task orchestration
 - **Ultracite** - Code quality (Oxlint + Oxfmt) — `ultracite check` / `ultracite fix`
 - **Grit** - Additional code analysis and auto-fixes
 - **Renovate** - Automated dependency updates (weekly, Saturday 00:00)
