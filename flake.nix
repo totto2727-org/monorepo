@@ -38,6 +38,8 @@
             ];
 
             shellHook = ''
+              # Enable Git Hook
+              vp config
               ${pkgs.lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
                 export NIX_LDFLAGS="$NIX_LDFLAGS -no_compact_unwind"
               ''}
