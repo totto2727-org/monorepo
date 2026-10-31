@@ -74,3 +74,13 @@ nix flake check ./nix/share/packages --all-systems --no-build
 ```
 
 Builds run on the current system; `--all-systems --no-build` only evaluates other systems.
+
+### Native CI smoke tests
+
+The [shared-tools workflow](../../../.github/workflows/nix-shared-tools.yaml) builds `pass-cli`, `monid`, and `oo-cli` on native `x86_64-linux`, `aarch64-linux`, and `aarch64-darwin` runners.
+It checks `builtins.currentSystem` before building each package with `--no-link --print-out-paths`.
+It runs `pass-cli version`, `monid --version`, and `oo --version` from the resulting store paths with isolated home directories and no inherited credentials.
+The same jobs use the official `voidzero-dev/setup-vp` action with `run-install: false`, then run `vp env install`, `vp --version`, and `vp exec node --version`.
+Vite+ and Node.js are not Nix packages in this workflow, and workspace dependencies are not installed.
+Run the workflow manually with `workflow_dispatch`, or trigger it through a pull request that changes the workflow's watched paths.
+The native workflow has not yet been executed remotely, so these definitions are not evidence of successful builds on all three platforms.
