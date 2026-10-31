@@ -19,14 +19,14 @@ GitHub-hosted Linux and macOS runners provide Python 3.
     prepare-dev-shell: 'false'
 ```
 
-| Input | Default | Purpose |
-| --- | --- | --- |
-| `cache-url` | Empty | HTTPS binary cache URL. Required when any cache input is set. |
-| `cache-public-key` | Empty | Signing public key, normally `name:base64`. Required with `cache-url`. Nix validates the key format. |
-| `cache-username` | Empty | HTTP Basic authentication username. Requires `cache-password`. |
-| `cache-password` | Empty | HTTP Basic authentication password. Requires `cache-username`. Use a GitHub secret. |
-| `prepare-dev-shell` | `'true'` | Run `nix develop` after cache configuration. |
-| `dev-shell` | `default` | Development shell attribute to prepare. |
+| Input               | Default   | Purpose                                                                                              |
+| ------------------- | --------- | ---------------------------------------------------------------------------------------------------- |
+| `cache-url`         | Empty     | HTTPS binary cache URL. Required when any cache input is set.                                        |
+| `cache-public-key`  | Empty     | Signing public key, normally `name:base64`. Required with `cache-url`. Nix validates the key format. |
+| `cache-username`    | Empty     | HTTP Basic authentication username. Requires `cache-password`.                                       |
+| `cache-password`    | Empty     | HTTP Basic authentication password. Requires `cache-username`. Use a GitHub secret.                  |
+| `prepare-dev-shell` | `'true'`  | Run `nix develop` after cache configuration.                                                         |
+| `dev-shell`         | `default` | Development shell attribute to prepare.                                                              |
 
 Leave all four cache inputs empty to retain the previous behavior.
 For a public cache, set only the URL and public key.
