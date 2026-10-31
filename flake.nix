@@ -20,11 +20,11 @@
       devShells = forEachSystem (
         system:
         let
-          pkgs = import nixpkgs{
+          pkgs = import nixpkgs {
             inherit system;
           };
         in
-        {
+        rec {
           default = pkgs.mkShell {
             packages = [
               # Nix
@@ -42,6 +42,9 @@
               vp config
             '';
           };
+          ci = default.overrideAttrs (_: {
+            shellHook = "";
+          });
         }
       );
     };

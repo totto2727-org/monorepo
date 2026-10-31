@@ -21,11 +21,13 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - uses: ./.github/actions/setup-nix
+        with:
+          dev-shell: ci
 
       - uses: ./.github/actions/setup-typescript
 
       - name: Run check, build, and test
         shell: bash
         run: |
-          eval "$(nix print-dev-env "$GITHUB_WORKSPACE#default")"
+          eval "$(nix print-dev-env "$GITHUB_WORKSPACE#ci")"
           vp run ci
