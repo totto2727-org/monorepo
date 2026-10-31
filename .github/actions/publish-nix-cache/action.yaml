@@ -1,0 +1,27 @@
+name: Publish Nix cache
+description: Build a Nix installable and copy its closure to NIX_CACHE_URL.
+
+inputs:
+  installable:
+    description: Nix build target, for example .#packages.x86_64-linux.my-tool.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Build and upload Nix closure
+      shell: bash
+      env:
+        NIX_INSTALLABLE: ${{ inputs.installable }}
+      run: |
+        set -euo pipefail
+        set +x
+        : "${NIX_CACHE_URL:?Set NIX_CACHE_URL to the destination store URL}"
+        nix build --no-link "$NIX_INSTALLABLE"
+        if [[ -n "${NIX_CACHE_SIGNING_KEY:-}" ]]; then
+          key_file=$(mktemp "$RUNNER_TEMP/nix-cache-key.XXXXXX")
+          trap 'rm -f "$key_file"' EXIT
+          printf '%s' "$NIX_CACHE_SIGNING_KEY" > "$key_file"
+          nix store sign --recursive --key-file "$key_file" "$NIX_INSTALLABLE"
+        fi
+        nix copy --to "$NIX_CACHE_URL" "$NIX_INSTALLABLE"
