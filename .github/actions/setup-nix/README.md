@@ -49,6 +49,8 @@ An empty or relative override fails instead of silently writing an unused config
 Do not override these settings later through `NIX_CONFIG`, command-line options, or replacement configuration files.
 
 Authenticated caches also set `netrc-file` to a file created exclusively with mode `0600` inside a unique mode-`0700` directory under `RUNNER_TEMP`.
+This replaces the effective netrc path and does not merge credentials from an existing netrc file.
+Use this automatic authentication setup on runners that do not need other netrc credentials for Nix.
 The netrc machine is the URL hostname without its port or IPv6 brackets.
 Authentication is hostname-scoped, not path-scoped.
 Use a dedicated cache hostname if other endpoints on that host must not receive these credentials.
