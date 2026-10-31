@@ -95,6 +95,6 @@ jobs:
       - name: Check Vite+ and its Node.js runtime
         shell: bash
         run: |
-          vp env install
+          vp env install lts
           vp --version
           vp exec node --version
