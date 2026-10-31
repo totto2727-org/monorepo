@@ -46,6 +46,7 @@ This policy does not establish that Vite+ can install or manage Deno.
 Runtime provisioning gaps are tracked in [#387](https://github.com/totto2727-org/monorepo/issues/387).
 The macOS `install-vite-plus` Just task uses the same official installer.
 CI uses `voidzero-dev/setup-vp` without version or package-manager overrides, then installs dependencies with the shared action's lockfile policy.
+The shared [setup-nix action](.github/actions/setup-nix/README.md) installs Nix and can generate binary-cache settings and a private netrc from action inputs, while preserving the default caches and Magic Nix Cache.
 The shared [publish-nix-cache action](.github/actions/publish-nix-cache/README.md) builds a specified Nix target and uploads its closure to the store URL supplied through environment variables.
 
 ## Development Commands

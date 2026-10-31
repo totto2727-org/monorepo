@@ -2,6 +2,22 @@ name: Setup Nix
 description: Install Determinate Nix, cache store paths, and prepare the development shell.
 
 inputs:
+  cache-url:
+    description: HTTPS binary cache URL. Leave all cache inputs empty to disable configuration.
+    required: false
+    default: ''
+  cache-public-key:
+    description: Cache signing public key in name:base64 format. Required with cache-url.
+    required: false
+    default: ''
+  cache-username:
+    description: Optional HTTP Basic authentication username. Requires cache-password.
+    required: false
+    default: ''
+  cache-password:
+    description: Optional HTTP Basic authentication password. Pass a GitHub secret.
+    required: false
+    default: ''
   prepare-dev-shell:
     description: Prepare the development shell. Disable for jobs that only need Nix itself.
     required: false
@@ -22,6 +38,17 @@ runs:
       with:
         use-flakehub: false
         use-gha-cache: true
+
+    - name: Configure binary cache
+      shell: bash
+      env:
+        CACHE_URL: ${{ inputs.cache-url }}
+        CACHE_PUBLIC_KEY: ${{ inputs.cache-public-key }}
+        CACHE_USERNAME: ${{ inputs.cache-username }}
+        CACHE_PASSWORD: ${{ inputs.cache-password }}
+      run: |
+        set +x
+        python3 "$GITHUB_ACTION_PATH/configure-cache.py"
 
     - name: Prepare Nix development shell
       if: ${{ inputs.prepare-dev-shell == 'true' }}
