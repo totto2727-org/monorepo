@@ -127,7 +127,7 @@ class CacheTests(unittest.TestCase):
                           "https://cache.example\nextra-substituters=x", "https://cache.example\r",
                           "https://cache.example\t", "https://cache.example/a b", "https://cache.example:bad",
                           "https://cache.example:65536", "https://[broken", "https://cache.example\\evil",
-                          "https://cache.example/\x00", "https://cache.example/\x7f"],
+                          "https://cache.example/\x00", "https://cache.example/\x7f", 'https://bad"host'],
             "CACHE_PUBLIC_KEY": ["", "bad name:key", KEY + "\n", "name:key#comment", "name:key\\suffix"],
             "CACHE_USERNAME": ["", "two words", "line\nbreak", "quote\"", "back\\slash", "\x00", "u:ser", "#comment"],
             "CACHE_PASSWORD": ["", "two words", "line\nbreak", "quote\"", "back\\slash", "\x7f", "#comment"],

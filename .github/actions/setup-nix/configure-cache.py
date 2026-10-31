@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Configure an optional authenticated binary cache without replacing Nix defaults."""
 
+from collections.abc import Mapping
 import json
 import os
 from pathlib import Path
@@ -11,11 +12,11 @@ import tempfile
 from urllib.parse import urlsplit
 
 
-def token(value):
+def token(value: str) -> bool:
     return bool(value) and not any(c.isspace() or ord(c) < 32 or ord(c) == 127 or c in "#\\" for c in value)
 
 
-def configure(env):
+def configure(env: Mapping[str, str]) -> None:
     url, key, username, password = (
         env.get(name, "") for name in
         ("CACHE_URL", "CACHE_PUBLIC_KEY", "CACHE_USERNAME", "CACHE_PASSWORD")
@@ -34,7 +35,7 @@ def configure(env):
     parsed.port
     if not token(parsed.hostname) or not token(key):
         raise ValueError("invalid configuration token")
-    if username and (not all(token(v) and '"' not in v for v in (username, password)) or ":" in username):
+    if username and (not all(token(v) and '"' not in v for v in (parsed.hostname, username, password)) or ":" in username):
         raise ValueError("invalid credentials")
     override = env.get("NIX_USER_CONF_FILES")
     if override is not None:
@@ -80,7 +81,7 @@ def configure(env):
         raise
 
 
-def main():
+def main() -> int:
     try:
         configure(os.environ)
     except Exception:
