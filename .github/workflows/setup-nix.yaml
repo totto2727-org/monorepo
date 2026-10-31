@@ -1,0 +1,61 @@
+name: Setup Nix
+
+on:
+  pull_request:
+    paths:
+      - .github/actions/setup-nix/**
+      - .github/workflows/setup-nix.yaml
+  push:
+    branches: [main]
+    paths:
+      - .github/actions/setup-nix/**
+      - .github/workflows/setup-nix.yaml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  setup-nix:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, ubuntu-24.04-arm, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Nix with a fixture cache
+        uses: ./.github/actions/setup-nix
+        with:
+          prepare-dev-shell: 'false'
+          cache-url: https://cache.example.invalid/store
+          cache-public-key: test.example-1:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+          cache-username: fixture-user
+          cache-password: fixture-password
+
+      - name: Check effective action configuration
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          import stat
+          import subprocess
+          settings = json.loads(subprocess.check_output(['nix', 'config', 'show', '--json']))
+          assert 'https://cache.example.invalid/store' in settings['substituters']['value']
+          assert 'https://cache.nixos.org/' in settings['substituters']['value']
+          assert 'test.example-1:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=' in settings['trusted-public-keys']['value']
+          assert settings['require-sigs']['value'] is True
+          netrc = Path(settings['netrc-file']['value'])
+          assert stat.S_IMODE(netrc.stat().st_mode) == 0o600
+          assert stat.S_IMODE(netrc.parent.stat().st_mode) == 0o700
+          assert netrc.read_text() == 'machine cache.example.invalid\nlogin fixture-user\npassword fixture-password\n'
+          PY
+
+      - name: Run standalone regression tests
+        shell: bash
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: python3 -m unittest discover -s .github/actions/setup-nix -v
