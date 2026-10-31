@@ -3,6 +3,10 @@ name: Publish MoonBit package
 description: Publish a MoonBit package to the mooncakes.io registry, skipping an already-published version.
 
 inputs:
+  dev-shell:
+    description: Nix devShell attribute to load.
+    required: false
+    default: default
   token:
     description: >
       API token for the mooncakes.io registry. Store this as a repository
@@ -27,12 +31,13 @@ runs:
       shell: bash
       working-directory: ${{ inputs.package-path }}
       env:
+        NIX_DEV_SHELL: ${{ inputs.dev-shell }}
         MOONCAKES_TOKEN: ${{ inputs.token }}
         PUBLISH_DRY_RUN: ${{ inputs.dry-run }}
       run: |
         set -euo pipefail
 
-        eval "$(nix print-dev-env "$GITHUB_WORKSPACE#default")"
+        eval "$(nix print-dev-env "$GITHUB_WORKSPACE#$NIX_DEV_SHELL")"
 
         mkdir -p ~/.moon
         tmp_credentials="$(mktemp -p ~/.moon credentials.json.XXXXXX)"
