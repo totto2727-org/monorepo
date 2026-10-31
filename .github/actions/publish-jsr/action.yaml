@@ -2,6 +2,10 @@ name: Publish to JSR
 description: Publish the package in working-directory to JSR via `vpx jsr publish`.
 
 inputs:
+  dev-shell:
+    description: Nix devShell attribute to load.
+    required: false
+    default: default
   working-directory:
     description: Directory containing the JSR package to publish.
     required: true
@@ -12,6 +16,8 @@ runs:
     - name: Publish JSR package
       shell: bash
       working-directory: ${{ inputs.working-directory }}
+      env:
+        NIX_DEV_SHELL: ${{ inputs.dev-shell }}
       run: |
-        eval "$(nix print-dev-env "$GITHUB_WORKSPACE#default")"
+        eval "$(nix print-dev-env "$GITHUB_WORKSPACE#$NIX_DEV_SHELL")"
         vpx jsr publish

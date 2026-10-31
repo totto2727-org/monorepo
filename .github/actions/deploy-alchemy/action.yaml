@@ -2,6 +2,10 @@ name: Deploy with Alchemy
 description: Deploy an Alchemy stack and expose its URL from the stack output.
 
 inputs:
+  dev-shell:
+    description: Nix devShell attribute to load.
+    required: false
+    default: default
   working-directory:
     description: Directory containing alchemy.run.ts.
     required: true
@@ -29,11 +33,12 @@ runs:
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       env:
+        NIX_DEV_SHELL: ${{ inputs.dev-shell }}
         ALCHEMY_DEPLOY_STACK: ${{ inputs.stack-name }}
         ALCHEMY_STAGE: ${{ inputs.stage }}
         ALCHEMY_STATE_BACKEND: ${{ inputs.state-backend }}
       run: |
-        eval "$(nix print-dev-env "$GITHUB_WORKSPACE#default")"
+        eval "$(nix print-dev-env "$GITHUB_WORKSPACE#$NIX_DEV_SHELL")"
         vp exec alchemy deploy --stage "$ALCHEMY_STAGE" --yes
         url="$(vp exec alchemy state read "$ALCHEMY_DEPLOY_STACK/$ALCHEMY_STAGE/output" --backend "$ALCHEMY_STATE_BACKEND" --no-input --log-level none \
           | node -e '
