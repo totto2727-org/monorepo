@@ -73,13 +73,18 @@ jobs:
             home="$smoke_root/$package"
             mkdir -p "$home"
             case "$package" in
-              pass-cli) binary=pass-cli; argument=version ;;
-              monid) binary=monid; argument=--version ;;
-              oo-cli) binary=oo; argument=--version ;;
+              pass-cli) binary=pass-cli; arguments=(version) ;;
+              monid) binary=monid; arguments=(--version) ;;
+              oo-cli) binary=oo; arguments=(version --json) ;;
             esac
             env -i PATH="$PATH" HOME="$home" XDG_CONFIG_HOME="$home/.config" \
               XDG_CACHE_HOME="$home/.cache" XDG_DATA_HOME="$home/.local/share" \
-              CI=true NO_COLOR=1 "$output/bin/$binary" "$argument"
+              CI=true NO_COLOR=1 "$output/bin/$binary" "${arguments[@]}"
+            if [[ "$package" == oo-cli ]]; then
+              env -i PATH="$PATH" HOME="$home" XDG_CONFIG_HOME="$home/.config" \
+                XDG_CACHE_HOME="$home/.cache" XDG_DATA_HOME="$home/.local/share" \
+                CI=true NO_COLOR=1 "$output/bin/oo" skills info --source bundled --json
+            fi
           done
 
       - name: Set up official Vite+

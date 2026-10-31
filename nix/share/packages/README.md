@@ -79,7 +79,8 @@ Builds run on the current system; `--all-systems --no-build` only evaluates othe
 
 The [shared-tools workflow](../../../.github/workflows/nix-shared-tools.yaml) builds `pass-cli`, `monid`, and `oo-cli` on native `x86_64-linux`, `aarch64-linux`, and `aarch64-darwin` runners.
 It checks `builtins.currentSystem` before building each package with `--no-link --print-out-paths`.
-It runs `pass-cli version`, `monid --version`, and `oo --version` from the resulting store paths with isolated home directories and no inherited credentials.
+It runs `pass-cli version`, `monid --version`, and `oo version --json` from the resulting store paths with isolated home directories and no inherited credentials.
+It also checks the bundled oo skill with `oo skills info --source bundled --json`, without contacting a connected service.
 The same jobs use the official `voidzero-dev/setup-vp` action with `run-install: false`, then run `vp env install`, `vp --version`, and `vp exec node --version`.
 Vite+ and Node.js are not Nix packages in this workflow, and workspace dependencies are not installed.
 Run the workflow manually with `workflow_dispatch`, or trigger it through a pull request that changes the workflow's watched paths.
