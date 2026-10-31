@@ -15,8 +15,6 @@ runs:
         NIX_INSTALLABLE: ${{ inputs.installable }}
       run: |
         set -euo pipefail
-        set +x
-        : "${NIX_CACHE_URL:?Set NIX_CACHE_URL to the destination store URL}"
         nix build --no-link "$NIX_INSTALLABLE"
         if [[ -n "${NIX_CACHE_SIGNING_KEY:-}" ]]; then
           key_file=$(mktemp "$RUNNER_TEMP/nix-cache-key.XXXXXX")
