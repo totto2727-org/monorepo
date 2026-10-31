@@ -2,7 +2,6 @@
   lib,
   bun2nix,
   fetchFromGitHub,
-  jq,
 }:
 let
   version = "0.1.7";
@@ -16,19 +15,6 @@ bun2nix.mkDerivation {
     rev = "v${version}";
     hash = "sha256-RW709N7sWfkitoTRP5WvWbVAsaQOOnLQ0khXaYF+Xm4=";
   };
-  nativeBuildInputs = [ jq ];
-  # Match the release manifest's name and dependency groups to its bundled lockfile.
-  postPatch = ''
-    jq '
-      .name = "monid"
-      | .dependencies = (.devDependencies | del(.["bun-types"], .typescript))
-      | .devDependencies |= { "bun-types": .["bun-types"], typescript: .typescript }
-    ' package.json > package.json.tmp
-    mv package.json.tmp package.json
-  '';
-  preBunNodeModulesInstallPhase = ''
-    bunInstallFlagsArray=( "''${bunDefaultInstallFlagsArray[@]}" --frozen-lockfile --offline )
-  '';
   module = "src/index.ts";
   bunDeps = bun2nix.fetchBunDeps {
     bunNix = ./monid-bun.nix;

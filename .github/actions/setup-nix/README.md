@@ -72,8 +72,3 @@ The action never edits `/etc/nix` or restarts a daemon.
 Nix sends modified client settings through `RemoteStore::setOptions` and applies them for trusted clients in the daemon.
 See the [Nix 2.33.3 remote store implementation](https://github.com/NixOS/nix/blob/2.33.3/src/libstore/remote-store.cc) and [daemon implementation](https://github.com/NixOS/nix/blob/2.33.3/src/libstore/daemon.cc).
 See also the [Nix configuration reference](https://nix.dev/manual/nix/2.33/command-ref/conf-file) and the [pinned Determinate action](https://github.com/DeterminateSystems/determinate-nix-action/blob/2a0be2498974c2b6327e19780488744384637d88/action.yml).
-
-## CI
-
-The focused `setup-nix.yaml` workflow runs the shared action and checks its effective configuration on native Linux amd64, Linux arm64, and macOS runners.
-The fixture cache is not contacted, and these checks do not establish authenticated remote substitution or cache availability.
