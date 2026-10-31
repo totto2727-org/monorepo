@@ -2,6 +2,10 @@ name: Publish to crates.io
 description: Publish the crate in working-directory, skipping versions already on crates.io.
 
 inputs:
+  dev-shell:
+    description: Nix devShell attribute to load.
+    required: false
+    default: default
   working-directory:
     description: Directory containing the Cargo.toml to publish.
     required: true
@@ -13,8 +17,10 @@ runs:
       id: version
       shell: bash
       working-directory: ${{ inputs.working-directory }}
+      env:
+        NIX_DEV_SHELL: ${{ inputs.dev-shell }}
       run: |
-        eval "$(nix print-dev-env "$GITHUB_WORKSPACE#default")"
+        eval "$(nix print-dev-env "$GITHUB_WORKSPACE#$NIX_DEV_SHELL")"
         metadata="$(cargo metadata --no-deps --format-version 1)"
         package="$(jq -er --arg manifest "$PWD/Cargo.toml" '.packages[] | select(.manifest_path == $manifest) | [.name, .version] | @tsv' <<< "$metadata")"
         read -r name version <<< "$package"
@@ -28,6 +34,8 @@ runs:
       if: steps.version.outputs.publish == 'true'
       shell: bash
       working-directory: ${{ inputs.working-directory }}
+      env:
+        NIX_DEV_SHELL: ${{ inputs.dev-shell }}
       run: |
-        eval "$(nix print-dev-env "$GITHUB_WORKSPACE#default")"
+        eval "$(nix print-dev-env "$GITHUB_WORKSPACE#$NIX_DEV_SHELL")"
         cargo publish --registry crates-io
