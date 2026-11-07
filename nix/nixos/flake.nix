@@ -2,14 +2,9 @@
   inputs = {
     determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/*";
     nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.1";
-    home-manager = {
-      url = "https://flakehub.com/f/nix-community/home-manager/0.1";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    npmpkgs = {
-      url = "path:../npm-package";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    home-manager.url = "https://flakehub.com/f/nix-community/home-manager/0.1";
+    npmpkgs.url = "path:../npm-package";
+    vite-plus-overlay.url = "github:ryoppippi/nix-vite-plus";
   };
 
   outputs =
@@ -19,6 +14,7 @@
       nixpkgs,
       home-manager,
       npmpkgs,
+      vite-plus-overlay,
     }:
     let
       username = "totto2727";
@@ -35,7 +31,10 @@
           modules = [
             determinate.nixosModules.default
             {
-              nixpkgs.overlays = [ ];
+              nixpkgs.overlays = [
+                # TODO:対応次第nixpkgsのvite-plusに差し替え
+                vite-plus-overlay.overlays.default
+              ];
             }
             ./configuration.nix
             home-manager.nixosModules.home-manager
@@ -55,11 +54,12 @@
                     xdg-user-dirs
                     mission-center
                     firefox
-                    warp-terminal
+                    herdr-desktop
                     # CLI
                     unzip
                     fakeroot
                     sqlite
+                    herdr
                     pi-coding-agent
                     # Lang toolchain
                     gcc
@@ -67,6 +67,7 @@
                     nodejs
                     bun
                     pnpm
+                    vite-plus
                     # Game
                     heroic
                     protonup-ng
