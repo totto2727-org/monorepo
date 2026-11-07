@@ -68,6 +68,7 @@
                     bun
                     pnpm
                     vite-plus
+                    go
                     # Game
                     heroic
                     protonup-ng
