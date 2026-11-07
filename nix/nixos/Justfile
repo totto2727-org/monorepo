@@ -13,3 +13,8 @@ lang-fix:
 flatpak-install:
     flatpak install app.zen_browser.zen
     flatpak install flathub com.github.tchx84.Flatseal
+
+cmux-install:
+    curl -L https://cmux.com/api/download/browser-nightly/linux-x64/run > ~/Downloads/cmux-linux-x64-installer.run
+    chmod +x ~/Downloads/cmux-linux-x64-installer.run
+    ~/Downloads/cmux-linux-x64-installer.run

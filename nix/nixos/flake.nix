@@ -1,21 +1,13 @@
 {
   inputs = {
     determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/*";
-    nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/*";
+    nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.1";
     home-manager = {
-      url = "https://flakehub.com/f/nix-community/home-manager/0";
+      url = "https://flakehub.com/f/nix-community/home-manager/0.1";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     npmpkgs = {
       url = "path:../npm-package";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    jcode-overlay = {
-      url = "github:hypervideo/jcode-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    warp = {
-      url = "github:warpdotdev/warp";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -27,8 +19,6 @@
       nixpkgs,
       home-manager,
       npmpkgs,
-      jcode-overlay,
-      warp,
     }:
     let
       username = "totto2727";
@@ -45,12 +35,7 @@
           modules = [
             determinate.nixosModules.default
             {
-              nixpkgs.overlays = [
-                jcode-overlay.overlays.default
-                (_: _: {
-                  inherit (warp.packages.${system}) warp-terminal-experimental;
-                })
-              ];
+              nixpkgs.overlays = [ ];
             }
             ./configuration.nix
             home-manager.nixosModules.home-manager
@@ -70,14 +55,18 @@
                     xdg-user-dirs
                     mission-center
                     firefox
-                    warp-terminal-experimental
+                    warp-terminal
                     # CLI
                     unzip
                     fakeroot
                     sqlite
+                    pi-coding-agent
                     # Lang toolchain
                     gcc
                     tree-sitter
+                    nodejs
+                    bun
+                    pnpm
                     # Game
                     heroic
                     protonup-ng
