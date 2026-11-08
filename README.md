@@ -8,7 +8,8 @@ A multi-language monorepo using Node.js, pnpm workspaces, and Vite+.
 
 - `js/`: JavaScript Projects
 - `elixir/`: Elixir Projects
-- `infra/`: Pulumi Projects
+
+Infrastructure projects are maintained in [totto2727-org/infra](https://github.com/totto2727-org/infra).
 
 Machine-level Nix configurations are maintained in [totto2727-dotfiles/nix](https://github.com/totto2727-dotfiles/nix).
 This repository keeps its root Nix development shell and reusable GitHub Actions, but no longer contains sandbox image projects.
@@ -25,7 +26,6 @@ This repository keeps its root Nix development shell and reusable GitHub Actions
 - `Vite+`: `curl -fsSL https://vite.plus | bash`
 - `Nix`: `https://nixos.org/download/` (for non-JavaScript tools)
 - `atlas`: `curl -sSf https://atlasgo.sh | sh`
-- `pulumi`: `brew install pulumi`
 
 ### Installation
 
@@ -67,9 +67,9 @@ Dependency updates stay within compatible manifest and catalog ranges by default
 - Lifecycle scripts are allowed only for the previously trusted `esbuild`, `msgpackr-extract`, `sharp`, and `workerd` packages, via pnpm's `allowBuilds` configuration. The previously untrusted `protobufjs` postinstall remains explicitly denied so pnpm can complete non-interactively without widening permissions. Review any new build-script requirement instead of automatically approving it.
 - The old Bun patch registration for `@better-auth/kysely-adapter@1.6.12` was already inactive with the resolved `1.6.33` dependency and is not carried into pnpm configuration. The patch file remains available for historical reference.
 
-### Bun Runtime Scope
+### Runtime Scope
 
-Node.js is the default JavaScript runtime. `infra/aws/Pulumi.yaml` and `infra/cloudflare/Pulumi.yaml` select Bun to execute TypeScript directly. These projects still install dependencies through pnpm via Vite+. Use the official Vite+ entry point for Node.js and supported package-manager management, not Nix development packages or global-tool wrappers. This does not imply support for every JavaScript runtime. Historical ADRs and runtime compatibility examples may still mention Bun or Deno.
+Node.js is the default JavaScript runtime. Use the official Vite+ entry point for Node.js and supported package-manager management, not Nix development packages or global-tool wrappers. This does not imply support for every JavaScript runtime. Historical ADRs and runtime compatibility examples may still mention Bun or Deno.
 
 ## License
 

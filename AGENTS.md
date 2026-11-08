@@ -9,10 +9,11 @@
 ## Repository Structure
 
 ```bash
-eza --tree -L 2 -D js infra elixir
+eza --tree -L 2 -D js elixir
 ```
 
 Machine-level Nix configurations are maintained in [totto2727-dotfiles/nix](https://github.com/totto2727-dotfiles/nix).
+Infrastructure projects are maintained in [totto2727-org/infra](https://github.com/totto2727-org/infra).
 Keep the root `flake.nix`, `flake.lock`, `.envrc`, and reusable GitHub Nix/setup/docker actions for this repository's development environment and CI.
 Sandbox image projects and their deployment workflow are no longer part of this repository.
 
@@ -137,7 +138,7 @@ run: {
 - Workspace membership, centralized catalogs, overrides, build-script permissions, and the strict 24-hour release-age policy live in root `pnpm-workspace.yaml`.
 - Install from the repository root with `vp install --frozen-lockfile`. Refresh `pnpm-lock.yaml` deliberately with `vp install --no-frozen-lockfile` without bypassing release-age safeguards.
 - Preserve compatible caret ranges and the documented Vite+ and TypeScript compiler API compatibility boundaries in [README.md](./README.md#dependency-policy).
-- Bun is retained only where TypeScript must execute directly, currently the Pulumi projects. It is not used to install workspace dependencies.
+- Bun is not required for this repository's development environment or workspace dependency installation.
 
 ### Path Aliases
 
@@ -160,4 +161,4 @@ Other installed skills are not bundled with this repository and must be provided
 - **Ultracite** - Code quality (Oxlint + Oxfmt) — `ultracite check` / `ultracite fix`
 - **Grit** - Additional code analysis and auto-fixes
 - **Renovate** - Automated dependency updates (weekly, Saturday 00:00)
-- **Just** - Infrastructure operational workflows (`infra/Justfile`)
+- **Just** - Project operational workflows, including database procedures in project `Justfile` files
