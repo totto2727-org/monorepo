@@ -21,6 +21,50 @@
   ];
   nix.settings.auto-optimise-store = true;
   programs.nix-ld.enable = true;
+  # Shared libraries for prebuilt binaries installed outside Nix
+  # (e.g. the cmux browser under ~/.local/opt/cmux-browser-nightly).
+  programs.nix-ld.libraries = with pkgs; [
+    # Linked at startup.
+    alsa-lib
+    at-spi2-core
+    cairo
+    cups
+    dbus
+    expat
+    fontconfig
+    freetype
+    glib
+    gtk3
+    libdrm
+    libgbm
+    libglvnd
+    libX11
+    libXcomposite
+    libXdamage
+    libXext
+    libXfixes
+    libXrandr
+    libXtst
+    libxcb
+    libxkbcommon
+    mesa
+    nspr
+    nss
+    pango
+    systemd
+
+    # Loaded on demand (audio, VA-API, screen capture, GTK dialogs, Kerberos).
+    gdk-pixbuf
+    gtk4
+    libkrb5
+    libpulseaudio
+    libva
+    libxcursor
+    pipewire
+  ];
+
+  # GSettings schemas are data, not libraries, so nix-ld cannot provide them.
+  environment.sessionVariables.GSETTINGS_SCHEMA_DIR = "${pkgs.gsettings-desktop-schemas}/share/gsettings-schemas/${pkgs.gsettings-desktop-schemas.name}/glib-2.0/schemas";
 
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
