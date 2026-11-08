@@ -101,6 +101,7 @@
                       zsh = (import ../share/zsh.nix { inherit pkgs; }) // {
                         initContent = ''
                                       eval "$(/opt/homebrew/bin/brew shellenv)"
+                                      . "$HOME/.vite-plus/env"
                           	      '';
                         shellAliases = (import ../share/shell-aliases.nix) // (import ../share/shell-aliases-macos.nix);
                       };

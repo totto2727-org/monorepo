@@ -127,7 +127,8 @@
                         initContent = ''
                                       eval "$(/opt/homebrew/bin/brew shellenv)"
 
-                                      . ~/.orbstack/shell/init.zsh
+                                      . "$HOME/.orbstack/shell/init.zsh"
+                                      . "$HOME/.vite-plus/env"
 
                                       if [[ ! -o interactive ]]; then
                                         return
