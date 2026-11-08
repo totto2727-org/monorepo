@@ -9,8 +9,12 @@
 ## Repository Structure
 
 ```bash
-eza --tree -L 2 -D js nix infra sandbox
+eza --tree -L 2 -D js infra elixir
 ```
+
+Machine-level Nix configurations are maintained in [totto2727-dotfiles/nix](https://github.com/totto2727-dotfiles/nix).
+Keep the root `flake.nix`, `flake.lock`, `.envrc`, and reusable GitHub Nix/setup/docker actions for this repository's development environment and CI.
+Sandbox image projects and their deployment workflow are no longer part of this repository.
 
 ## Development Commands
 
@@ -151,9 +155,9 @@ Other installed skills are not bundled with this repository and must be provided
 
 ### Toolchain
 
-- **Nix flakes + direnv** - Non-JavaScript development tools for local use, CI, and sandbox images
+- **Nix flakes + direnv** - Non-JavaScript development tools for local use and CI
 - **Vite+** (`vp`) - Official Node.js and supported package-manager management, Vite, Vitest, and monorepo task orchestration
 - **Ultracite** - Code quality (Oxlint + Oxfmt) — `ultracite check` / `ultracite fix`
 - **Grit** - Additional code analysis and auto-fixes
 - **Renovate** - Automated dependency updates (weekly, Saturday 00:00)
-- **Just** - Additional task definitions (`Justfile`)
+- **Just** - Infrastructure operational workflows (`infra/Justfile`)

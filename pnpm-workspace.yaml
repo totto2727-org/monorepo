@@ -2,7 +2,6 @@ packages:
   - infra/*
   - js/app/*
   - js/package/*
-  - nix
   - elixir/*
 
 minimumReleaseAgeStrict: true

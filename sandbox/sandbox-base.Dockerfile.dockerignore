@@ -1,6 +1,0 @@
-**
-!nix
-!nix/share
-!nix/share/**
-!nix/sandbox
-!nix/sandbox/**
