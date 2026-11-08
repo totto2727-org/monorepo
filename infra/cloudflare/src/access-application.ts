@@ -1,8 +1,8 @@
 import * as cloudflare from '@pulumi/cloudflare'
 
-import { allowPasskeys, allowSaml } from './access-policy.ts'
+import { allowPasskeys } from './access-policy.ts'
 import * as config from './config.ts'
-import { awsSaml, passkeys } from './identity-provider.ts'
+import { passkeys } from './identity-provider.ts'
 
 const tags = Object.entries(config.accessApplicationTags).map(
   ([key, name]) =>
@@ -18,16 +18,13 @@ const createApplication = (name: string, domain: string) =>
     config.resourceName(name),
     {
       accountId: config.accountID,
-      allowedIdps: [passkeys.id, awsSaml.id],
+      allowedIdps: [passkeys.id],
       appLauncherVisible: true,
       autoRedirectToIdentity: false,
       destinations: [{ type: 'public', uri: domain }],
       domain,
       name: config.resourceName(name),
-      policies: [
-        { id: allowPasskeys.id, precedence: 1 },
-        { id: allowSaml.id, precedence: 2 },
-      ],
+      policies: [{ id: allowPasskeys.id, precedence: 1 }],
       sessionDuration: '24h',
       tags: tags.map((tag) => tag.name),
       type: 'self_hosted',

@@ -15,9 +15,8 @@ Common tools, settings, and deployment workflow for infrastructure projects in t
 AWS Infrastructure as Code using Pulumi:
 
 - IAM Identity Center management
-- SAML/OIDC providers
+- OIDC providers
 - Organization settings
-- Application integration
 
 ### Cloudflare (`infra/cloudflare/`)
 
@@ -25,7 +24,7 @@ Cloudflare Zero Trust configuration using Pulumi:
 
 - Access applications
 - Access policies
-- Identity providers
+- Native passkey identity provider
 - Workers deployment
 
 ## Common Tools

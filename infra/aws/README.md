@@ -90,26 +90,11 @@ pulumi import --cwd infra/aws --stack production --generate-code=false \
   aws:iam/role:Role iac-prod-pulumi iac-prod-pulumi
 ```
 
-## 4. SAML Application Setup
+## 4. Deploy
 
-**First deployment**: AWS Console → **IAM Identity Center → Applications → Add application → SAML 2.0**.
-
-| Field                | Value                                                                               |
-| -------------------- | ----------------------------------------------------------------------------------- |
-| Display name         | `iac-prod-cloudflare-access`                                                        |
-| Application metadata | Download from `https://totto2727.cloudflareaccess.com/cdn-cgi/access/saml-metadata` |
-| Attribute mappings   | [Existing values](./docs/cloudflare-saml-mapping.png), format `unspecified`         |
-| `<APPLICATION_ARN>`  | Copy the application ARN from Application details                                   |
-
-**Unmanaged application only**:
-
-```bash
-pulumi import --cwd infra/aws --stack production --generate-code=false \
-  aws:ssoadmin/application:Application iac-prod-cloudflare-access-application \
-  '<APPLICATION_ARN>'
-```
-
-## 5. Deploy
+Cloudflare Access uses native passkeys and does not depend on this AWS stack.
+For existing installations, follow the [legacy SAML retirement procedure](../cloudflare/README.md#retire-legacy-aws-saml) before removing the protected integration resources.
+AWS users, administrator access, and Pulumi OIDC authentication remain managed here.
 
 ```bash
 pulumi up --cwd infra/aws --stack production
@@ -119,6 +104,7 @@ pulumi up --cwd infra/aws --stack production
 
 ```bash
 vp check infra/aws
+vp test run --dir infra/aws
 ```
 
 ## References
