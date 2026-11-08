@@ -31,7 +31,7 @@ Cloudflare Zero Trust configuration using Pulumi:
 
 GitHub repository management using Pulumi:
 
-- Existing `totto2727-org` repositories represented in the workspace
+- `totto2727-org` repositories, with owner-specific Providers for additional organizations
 - Merge settings and additive default-branch rulesets
 - Per-repository required CI checks and merge queue compatibility
 - No organization settings, membership, teams, or upstream repositories
@@ -52,6 +52,7 @@ Do not delete existing protection rules or change repository visibility when ado
 
 - **AWS**: OIDC authentication with IAM roles
 - **Cloudflare**: API token management
+- **GitHub**: GitHub App installation tokens through ESC `gh-login`
 
 ## Configuration Files
 
@@ -60,7 +61,7 @@ Do not delete existing protection rules or change repository visibility when ado
 ```yaml
 # Pulumi.{stack}.yaml
 environment:
-  - aws/production # or cloudflare/production
+  - aws/production # or cloudflare/production or github/production
 ```
 
 ### TypeScript Configuration

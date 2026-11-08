@@ -1,13 +1,5 @@
 import type * as github from '@pulumi/github'
-import type * as pulumi from '@pulumi/pulumi'
 import { Array } from 'effect'
-
-export const repositoryOptions = (name: string): pulumi.CustomResourceOptions => ({
-  // Fail closed on empty state: adopt this exact repository, never create a replacement.
-  import: name,
-  protect: true,
-  retainOnDelete: true,
-})
 
 export const repositorySettings: Omit<github.RepositoryArgs, 'name'> = {
   allowAutoMerge: true,
@@ -19,18 +11,19 @@ export const repositorySettings: Omit<github.RepositoryArgs, 'name'> = {
   archived: false,
   deleteBranchOnMerge: true,
   description: '',
+  fork: 'false',
   hasDiscussions: false,
   hasIssues: true,
-  hasProjects: true,
-  hasWiki: true,
+  hasProjects: false,
+  hasWiki: false,
   homepageUrl: '',
   isTemplate: false,
   mergeCommitMessage: 'PR_TITLE',
   mergeCommitTitle: 'MERGE_MESSAGE',
   securityAndAnalysis: {
-    secretScanning: { status: 'disabled' },
+    secretScanning: { status: 'enabled' },
     secretScanningNonProviderPatterns: { status: 'disabled' },
-    secretScanningPushProtection: { status: 'disabled' },
+    secretScanningPushProtection: { status: 'enabled' },
   },
   topics: [],
   visibility: 'public',

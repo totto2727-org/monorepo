@@ -25,12 +25,21 @@ test('isolates providers, credentials, and same-named repositories across owners
   const first = dotfiles('shared-name', {}, [])
   const second = archives('shared-name', {}, ['check'])
   const { promise, resolve } = Promise.withResolvers<boolean>()
-  pulumi.all([first.repository.id, first.ruleset.id, second.repository.id, second.ruleset.id]).apply(() => {
-    resolve(true)
-  })
+  pulumi
+    .all([
+      first.repository.id,
+      first.ruleset.id,
+      first.vulnerabilityAlerts.id,
+      second.repository.id,
+      second.ruleset.id,
+      second.vulnerabilityAlerts.id,
+    ])
+    .apply(() => {
+      resolve(true)
+    })
   await promise
 
-  expect(new Set(resources.map(({ name }) => name)).size).toBe(6)
+  expect(new Set(resources.map(({ name }) => name)).size).toBe(8)
   expect(resources.find((resource) => resource.name === 'totto2727-dotfiles')?.inputs).toMatchObject({
     token: {
       [pulumi.runtime.specialSigKey]: pulumi.runtime.specialSecretSig,
@@ -47,12 +56,19 @@ test('isolates providers, credentials, and same-named repositories across owners
     expect(
       resources.find((resource) => resource.type === 'pulumi:providers:github' && resource.name === owner)?.inputs,
     ).toMatchObject({ owner })
-    for (const name of [`repository-${owner}-shared-name`, `default-branch-${owner}-shared-name`]) {
+    for (const name of [
+      `repository-${owner}-shared-name`,
+      `default-branch-${owner}-shared-name`,
+      `vulnerability-alerts-${owner}-shared-name`,
+    ]) {
       expect(resources.find((resource) => resource.name === name)?.provider).toContain(
         `pulumi:providers:github::${owner}::id-${owner}`,
       )
     }
-    expect(resources.find((resource) => resource.name === `repository-${owner}-shared-name`)?.id).toBe('shared-name')
+    expect(resources.find((resource) => resource.name === `repository-${owner}-shared-name`)?.id).toBe('')
+    expect(resources.find((resource) => resource.name === `vulnerability-alerts-${owner}-shared-name`)?.inputs).toEqual(
+      { enabled: true, repository: 'shared-name' },
+    )
   }
   expect(
     resources.find((resource) => resource.name === 'default-branch-totto2727-dotfiles-shared-name')?.inputs,

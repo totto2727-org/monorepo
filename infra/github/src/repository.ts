@@ -1,7 +1,7 @@
 import * as github from '@pulumi/github'
 import type * as pulumi from '@pulumi/pulumi'
 
-import { defaultBranchRules, repositoryOptions, repositorySettings } from './policy.ts'
+import { defaultBranchRules, repositorySettings } from './policy.ts'
 
 export const createRepositoryFactory = (owner: string, token: pulumi.Input<string>) => {
   const provider = new github.Provider(owner, { owner, token })
@@ -10,7 +10,7 @@ export const createRepositoryFactory = (owner: string, token: pulumi.Input<strin
     const repository = new github.Repository(
       `repository-${owner}-${name}`,
       { ...repositorySettings, ...settings, name },
-      { ...repositoryOptions(name), provider },
+      { protect: true, provider, retainOnDelete: true },
     )
     const ruleset = new github.RepositoryRuleset(
       `default-branch-${owner}-${name}`,
@@ -29,6 +29,11 @@ export const createRepositoryFactory = (owner: string, token: pulumi.Input<strin
       },
       { protect: true, provider, retainOnDelete: true },
     )
-    return { repository, ruleset }
+    const vulnerabilityAlerts = new github.RepositoryVulnerabilityAlerts(
+      `vulnerability-alerts-${owner}-${name}`,
+      { enabled: true, repository: repository.name },
+      { protect: true, provider, retainOnDelete: true },
+    )
+    return { repository, ruleset, vulnerabilityAlerts }
   }
 }
