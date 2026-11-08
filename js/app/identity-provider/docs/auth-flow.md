@@ -66,7 +66,7 @@ sequenceDiagram
 
 The feed client uses `signInSocial({ provider: 'identity-provider' })` and the callback URL `/api/v1/auth/callback/identity-provider`.
 Existing IdP client registrations must replace the old `/api/v1/auth/oauth2/callback/identity-provider` URL before using the upgraded feed client.
-For a local database, reapply the idempotent OAuth seed with `vp exec just --justfile js/app/identity-provider/Justfile seed-oauth` from the repository root.
+For a local database, reapply the idempotent OAuth seed with `vp exec just --justfile js/app/identity-provider/Justfile db::seed-oauth` from the repository root.
 For deployed clients, update the registered redirect URI through the existing client-management procedure. Do not use the development seed or raw development client secret in production.
 The feed client loads `/api/v1/auth/.well-known/openid-configuration` from its configured IdP and sets `requireIdTokenVerification: true` so unavailable issuer/JWKS discovery cannot silently downgrade ID-token verification.
 Better Auth continues to own state, PKCE, issuer checks, and token verification. No application-specific OAuth verifier is introduced.

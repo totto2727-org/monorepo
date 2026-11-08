@@ -71,8 +71,8 @@ For IdP OAuth flows, prepare the local DB and seed the OAuth client:
 
 ```bash
 vp run --filter identity-provider setup
-vp exec just --justfile js/app/identity-provider/Justfile db-schema-apply
-vp exec just --justfile js/app/identity-provider/Justfile seed-oauth
+vp exec just --justfile js/app/identity-provider/Justfile db::schema-apply
+vp exec just --justfile js/app/identity-provider/Justfile db::seed-oauth
 ```
 
 For local DB-backed flows, start one libSQL/Turso dev server per database boundary.
@@ -80,13 +80,13 @@ For local DB-backed flows, start one libSQL/Turso dev server per database bounda
 IdP DB:
 
 ```bash
-vp exec just --justfile js/app/identity-provider/Justfile db-dev
+vp exec just --justfile js/app/identity-provider/Justfile db::dev
 ```
 
 feed-platform-web DB:
 
 ```bash
-vp exec just --justfile js/app/feed-platform-web/Justfile db-dev
+vp exec just --justfile js/app/feed-platform-web/Justfile db::dev
 ```
 
 Before starting each DB server, apply that app's schema and generate types:
@@ -96,7 +96,7 @@ vp run --filter identity-provider setup:kysely
 vp run --filter feed-platform-web setup:kysely
 ```
 
-Each DB-backed app provides its own `db-dev` helper. Do not use a single `db-dev` process as the shared DB for both apps.
+Each DB-backed app provides its own `db::dev` helper. Do not use a single `db::dev` process as the shared DB for both apps.
 
 Ensure each app's dev env points at its own endpoint from the root port registry.
 
@@ -223,7 +223,7 @@ Resolve the placeholder URL from the root port registry before running the check
 
 - Missing `worker-configuration.d.ts`: run the relevant setup task, or `vp run -r setup`.
 - Missing `app/feature/db/generated.ts`: run `vp run --filter identity-provider setup:kysely` or `vp run --filter feed-platform-web setup:kysely`.
-- OAuth client not found: run `vp exec just --justfile js/app/identity-provider/Justfile seed-oauth` after schema apply.
+- OAuth client not found: run `vp exec just --justfile js/app/identity-provider/Justfile db::seed-oauth` after schema apply.
 - DB connection refused for the IdP DB endpoint: start the IdP DB dev process and keep it alive.
 - DB connection refused for the feed-platform-web DB endpoint: start the feed-platform-web DB dev process and keep it alive.
 - IdP data appears in web tables or vice versa: stop using a shared DB file/port; production separates these databases, and local verification should mirror that boundary.

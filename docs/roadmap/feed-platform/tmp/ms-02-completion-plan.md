@@ -459,7 +459,7 @@ PR-A → PR-C (or PR-D) → PR-E
     - client_secret: dev 用固定値 (例: `dev-secret-do-not-use-in-prod`)
     - redirect_uris: `http://localhost:8788/auth/callback`
     - trusted: true
-  - `Justfile` (db タスク) に `seed-oauth` ターゲット追加 (`atlas migrate apply` 等の既存タスクに続けて呼べる形)
+  - `Justfile` (db タスク) に `db::seed-oauth` ターゲット追加 (`atlas migrate apply` 等の既存タスクに続けて呼べる形)
 
   **Must NOT do**:
   - 本番秘密値を seed に書く (dev 専用、`.gitignore` で本番値は除外)
@@ -490,7 +490,7 @@ PR-A → PR-C (or PR-D) → PR-E
 
   **Acceptance Criteria**:
   - [ ] dev DB に `feed-platform-web` row が存在 (`SELECT * FROM oauth_application WHERE client_id='feed-platform-web'`)
-  - [ ] `just seed-oauth` (または該当コマンド) で冪等に seed 実行可能
+  - [ ] `just db::seed-oauth` (または該当コマンド) で冪等に seed 実行可能
 
   **QA Scenarios**:
 
@@ -499,7 +499,7 @@ PR-A → PR-C (or PR-D) → PR-E
     Tool: Bash + sqlite3 (or libsql CLI)
     Preconditions: dev DB 起動済
     Steps:
-      1. just seed-oauth を実行
+      1. just db::seed-oauth を実行
       2. sqlite3 <dev-db> "SELECT client_id, trusted FROM oauth_application WHERE client_id='feed-platform-web'"
     Expected Result: stdout に "feed-platform-web|1" (or 同等)
     Evidence: .sisyphus/evidence/feed-platform-ms-02/pr-b/b3-seed.txt

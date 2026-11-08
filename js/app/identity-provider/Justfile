@@ -1,23 +1,4 @@
+mod db 'db.just'
+
 default:
-    @just --list
-
-db-schema-apply:
-    mkdir -p ./node_modules/.cache/
-    atlas schema apply --env local
-    vp run setup:kysely
-
-db-reset:
-    rm ./node_modules/.cache/db
-
-db-dev: db-schema-apply
-    turso dev -f ./node_modules/.cache/db --port 8080
-
-db-migrate-apply: db-reset
-    atlas migrate apply --env local
-
-db-migrate-diff: db-migrate-apply
-    atlas migrate diff --env local
-
-seed-oauth: db-schema-apply
-    echo "Seeding OAuth application..."
-    sqlite3 ./node_modules/.cache/db < ./db/seeds/oauth_application.sql
+    @just --list --list-submodules
