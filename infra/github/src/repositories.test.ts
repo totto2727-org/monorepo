@@ -1,5 +1,5 @@
 import * as pulumi from '@pulumi/pulumi'
-import { beforeAll, describe, expect, test } from 'vite-plus/test'
+import { afterAll, beforeAll, describe, expect, test } from 'vite-plus/test'
 
 import { defaultBranchRules, repositoryOptions, repositorySettings } from './policy.ts'
 
@@ -58,6 +58,7 @@ let resolvedNames: string[] = []
 let resolvedRulesetIds: string[] = []
 
 beforeAll(async () => {
+  pulumi.runtime.setAllConfig({ 'github:totto2727OrgToken': 'test-org-token' }, ['github:totto2727OrgToken'])
   await pulumi.runtime.setMocks(
     {
       call: (args) => {
@@ -80,6 +81,10 @@ beforeAll(async () => {
     resolve(true)
   })
   await promise
+})
+
+afterAll(() => {
+  pulumi.runtime.setAllConfig({})
 })
 
 describe('Existing workspace repository management', () => {
@@ -109,7 +114,7 @@ describe('Existing workspace repository management', () => {
       webCommitSignoffRequired: true,
     })
     for (const name of expectedNames) {
-      expect(resources.find((resource) => resource.name === `repository-${name}`)?.inputs).toMatchObject({
+      expect(resources.find((resource) => resource.name === `repository-totto2727-org-${name}`)?.inputs).toMatchObject({
         allowAutoMerge: true,
         allowForking: true,
         allowMergeCommit: true,
@@ -126,7 +131,7 @@ describe('Existing workspace repository management', () => {
         webCommitSignoffRequired: true,
       })
     }
-    expect(resources.find((resource) => resource.name === 'repository-monorepo')?.inputs).toMatchObject({
+    expect(resources.find((resource) => resource.name === 'repository-totto2727-org-monorepo')?.inputs).toMatchObject({
       hasProjects: false,
       hasWiki: false,
       securityAndAnalysis: {
@@ -135,7 +140,7 @@ describe('Existing workspace repository management', () => {
       },
     })
     for (const name of expectedNames) {
-      expect(resources.find((resource) => resource.name === `repository-${name}`)?.inputs).toMatchObject({
+      expect(resources.find((resource) => resource.name === `repository-totto2727-org-${name}`)?.inputs).toMatchObject({
         isTemplate: name.startsWith('template-'),
       })
     }
@@ -143,7 +148,7 @@ describe('Existing workspace repository management', () => {
 
   test('adopts exact existing names without ignoring configuration drift', () => {
     for (const name of expectedNames) {
-      expect(resources.find((resource) => resource.name === `repository-${name}`)?.id).toBe(name)
+      expect(resources.find((resource) => resource.name === `repository-totto2727-org-${name}`)?.id).toBe(name)
       expect(repositoryOptions(name)).toEqual({
         import: name,
         protect: true,
@@ -155,7 +160,7 @@ describe('Existing workspace repository management', () => {
   test('adds symbolic default-branch protection without taking ownership of existing queues', () => {
     for (const name of expectedNames) {
       const checks = checkExceptions[name] ?? ['check']
-      expect(resources.find((resource) => resource.name === `default-branch-${name}`)?.inputs).toEqual({
+      expect(resources.find((resource) => resource.name === `default-branch-totto2727-org-${name}`)?.inputs).toEqual({
         bypassActors: [
           { actorType: 'OrganizationAdmin', bypassMode: 'always' },
           { actorId: 5, actorType: 'RepositoryRole', bypassMode: 'always' },
@@ -194,9 +199,13 @@ describe('Existing workspace repository management', () => {
   test('binds every repository and ruleset to the fixed organization provider', () => {
     expect(resources.find((resource) => resource.type === 'pulumi:providers:github')?.inputs).toMatchObject({
       owner: 'totto2727-org',
+      token: {
+        [pulumi.runtime.specialSigKey]: pulumi.runtime.specialSecretSig,
+        value: 'test-org-token',
+      },
     })
     for (const resource of resources.filter((entry) => [repositoryType, rulesetType].includes(entry.type))) {
-      expect(resource.provider).toContain('pulumi:providers:github::github::id-github')
+      expect(resource.provider).toContain('pulumi:providers:github::totto2727-org::id-totto2727-org')
     }
   })
 })

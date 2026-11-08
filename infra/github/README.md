@@ -4,12 +4,12 @@
 
 - Pulumi CLI: `brew install pulumi` → `pulumi login`.
 - Pulumi organization `totto2727`: production stack and ESC environment.
-- GitHub: access to the managed `totto2727-org` repositories.
+- GitHub: administrator access to the managed repositories.
 - Commands: run from the repository root.
 
-## 1. GitHub Token Permissions
+## 1. GitHub App
 
-Create a fine-grained personal access token for the managed repositories in `totto2727-org`:
+Register a GitHub App in `totto2727-org` with these repository permissions:
 
 | Repository permission | Level          |
 | --------------------- | -------------- |
@@ -17,20 +17,41 @@ Create a fine-grained personal access token for the managed repositories in `tot
 | Contents              | Read and write |
 | Metadata              | Read           |
 
+Disable webhooks and select **Any account** to support installation in additional owners.
+Install the App in `totto2727-org`, grant access to the managed repositories, and generate a private key.
+Record the App ID, not the Client ID.
+
 ## 2. Pulumi ESC
 
 ### github/production
 
-Pulumi Console → **ESC → `github/production`**: replace `dummy-github-token` with the created token.
+Pulumi Console → **ESC → `github/production`**: replace the App ID and private key.
 
 ```yaml
 values:
-  github:
-    token:
-      fn::secret: dummy-github-token
-  environmentVariables:
-    GITHUB_TOKEN: ${github.token}
+  githubApp:
+    appId: 123456
+    privateKey:
+      fn::secret: |
+        -----BEGIN RSA PRIVATE KEY-----
+        REPLACE_WITH_PRIVATE_KEY
+        -----END RSA PRIVATE KEY-----
+  tokens:
+    totto2727Org:
+      fn::open::gh-login:
+        appId: ${githubApp.appId}
+        privateKey: ${githubApp.privateKey}
+        owner: totto2727-org
+        permissions:
+          administration: write
+          contents: write
+          metadata: read
+  pulumiConfig:
+    github:totto2727OrgToken: ${tokens.totto2727Org.accessToken}
 ```
+
+For another owner, install the same App there and add a separate `gh-login` value and Pulumi token configuration.
+Keep private keys in ESC and rotate them when needed.
 
 ## 3. Deploy
 
@@ -47,5 +68,5 @@ vp test run --dir infra/github
 
 ## References
 
-- [Repository definitions](./src/repository.ts)
-- [Pulumi GitHub provider authentication](https://www.pulumi.com/registry/packages/github/installation-configuration/)
+- [Repository definitions](./src/totto2727-org.ts)
+- [Pulumi ESC gh-login](https://www.pulumi.com/docs/esc/providers/login/gh-login/)
