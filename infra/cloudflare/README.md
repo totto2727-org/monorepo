@@ -1,8 +1,5 @@
 # Cloudflare Infrastructure
 
-> [!WARNING]
-> For an existing SAML installation, complete the [migration and approval checks](#retire-legacy-aws-saml) before applying this removal.
-
 ## Prerequisites
 
 - Cloudflare: API token creation for account `5643a837ef66765e7881c0831a36ebed`.
@@ -44,12 +41,16 @@ values:
 The stack creates the native `passkeys` identity provider in [`src/identity-provider.ts`](./src/identity-provider.ts).
 It does not require an external identity provider or AWS IAM Identity Center.
 Automatic browser prompts are disabled so enrollment and recovery controls remain visible on the login page.
-If a Passkeys provider already exists in the account, import it as `iac-prod-passkeys-identity-provider` before deploying instead of creating a duplicate.
+With passkeys as the only login method, Access verifies enrollment with an email code.
 
 Manage allowed email addresses in [`src/access-group.ts`](./src/access-group.ts).
 The group requires both an allowed email and authentication with the passkey provider.
 Keep email rules in `includes` and the login-method rule in `requires`, so registering a passkey alone does not grant access.
-The allowlist retains the two users previously assigned to the AWS Cloudflare Access application.
+This policy limits application access, not who can register a passkey.
+
+Protect the allowed mailboxes and keep a recovery passkey available.
+To remove access, update the email allowlist and revoke active Access sessions.
+Deleting a passkey alone does not end existing sessions.
 
 ## 4. Deploy
 
@@ -58,57 +59,8 @@ pulumi preview --cwd infra/cloudflare --stack production
 pulumi up --cwd infra/cloudflare --stack production
 ```
 
-Preview and mock tests do not prove that browser enrollment works.
-After deployment, open both `https://projektor.totto2727.dev` and `https://cloudflare.totto2727.dev` in fresh browser sessions.
-Select **Sign in with a passkey**, then **Don't have a passkey? Set one up**.
-With passkeys as the only login method, Access verifies enrollment with an email code.
-Confirm each allowed user can enroll and sign in to both applications, and an unlisted email cannot access either application.
-
-Protect the allowed mailboxes and keep a recovery passkey available.
-To remove access, update the email allowlist and revoke active Access sessions.
-Deleting a passkey alone does not end existing sessions.
-
-### Retire legacy AWS SAML
-
-This procedure applies only to existing installations with the old SAML resources in Pulumi state.
-Do not deploy this removal until the [Passkey introduction change](https://github.com/totto2727-org/monorepo/pull/395) is merged and deployed, both users can sign in with passkeys on both applications in fresh browser sessions, and unlisted users are denied.
-Migrate the App Launcher and any other applications that still use the old SAML provider before removing it.
-Confirm that AWS administrator sign-in and a recovery path remain available.
-
-The legacy resources are protected in state.
-A removal preview must stop while they remain protected.
-After migration verification and explicit approval, inspect their actual URNs with `pulumi stack --cwd infra/cloudflare --stack production --show-urns` and the corresponding AWS command.
-Unprotect only the named resources below, never the entire stack.
-If the actual URNs differ, stop and confirm their identities before continuing.
-
-First retire the Cloudflare SAML resources:
-
-```bash
-pulumi state unprotect --cwd infra/cloudflare --stack production \
-  'urn:pulumi:production::cloudflare::cloudflare:index/zeroTrustAccessPolicy:ZeroTrustAccessPolicy::iac-prod-must-authenticate-with-saml' \
-  'urn:pulumi:production::cloudflare::cloudflare:index/zeroTrustAccessGroup:ZeroTrustAccessGroup::iac-prod-saml-access-group' \
-  'urn:pulumi:production::cloudflare::cloudflare:index/zeroTrustAccessIdentityProvider:ZeroTrustAccessIdentityProvider::iac-prod-aws-saml-identity-provider'
-pulumi preview --cwd infra/cloudflare --stack production
-pulumi up --cwd infra/cloudflare --stack production
-```
-
-Before applying, confirm the preview deletes only these three legacy resources and does not replace the passkey provider or either Access application.
-After applying, verify fresh passkey sign-ins again before retiring the AWS integration:
-
-```bash
-pulumi state unprotect --cwd infra/aws --stack production \
-  'urn:pulumi:production::aws::aws:ssoadmin/applicationAssignment:ApplicationAssignment::iac-prod-cloudflare-application-assignment' \
-  'urn:pulumi:production::aws::aws:ssoadmin/application:Application::iac-prod-cloudflare-access-application' \
-  'urn:pulumi:production::aws::aws:identitystore/groupMembership:GroupMembership::iac-prod-cloudflare-access-totto2727' \
-  'urn:pulumi:production::aws::aws:identitystore/groupMembership:GroupMembership::iac-prod-cloudflare-access-test' \
-  'urn:pulumi:production::aws::aws:identitystore/group:Group::iac-prod-cloudflare-access'
-pulumi preview --cwd infra/aws --stack production
-pulumi up --cwd infra/aws --stack production
-```
-
-Before applying, confirm the AWS preview deletes only these five resources.
-The AWS users, administrator group and membership, account permission assignments, and Pulumi OIDC role must remain intact.
-This repository change does not unprotect resources or apply either stack automatically.
+Preview and mock tests do not verify browser enrollment or application authorization.
+Verify sign-in and denial behavior with fresh browser sessions when changing authentication policies.
 
 ## Checks
 
