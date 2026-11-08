@@ -65,16 +65,13 @@ describe('Deployment Access applications', () => {
       expect(applications.find((application) => application.name === `iac-prod-${name}`)).toMatchObject({
         inputs: {
           accountId: 'test-account',
-          allowedIdps: ['id-iac-prod-passkeys-identity-provider', 'id-iac-prod-aws-saml-identity-provider'],
+          allowedIdps: ['id-iac-prod-passkeys-identity-provider'],
           appLauncherVisible: true,
           autoRedirectToIdentity: false,
           destinations: [{ type: 'public', uri: domain }],
           domain,
           name: `iac-prod-${name}`,
-          policies: [
-            { id: 'id-iac-prod-must-authenticate-with-passkeys', precedence: 1 },
-            { id: 'id-iac-prod-must-authenticate-with-saml', precedence: 2 },
-          ],
+          policies: [{ id: 'id-iac-prod-must-authenticate-with-passkeys', precedence: 1 }],
           sessionDuration: '24h',
           type: 'self_hosted',
         },
@@ -82,38 +79,21 @@ describe('Deployment Access applications', () => {
     }
   })
 
-  test('reuses the existing SAML policy without adding administrator rules', () => {
-    const policy = resources.find((resource) => resource.name === 'iac-prod-must-authenticate-with-saml')
-    expect(policy).toMatchObject({
-      inputs: {
-        accountId: 'test-account',
-        decision: 'allow',
-        includes: [{ group: { id: 'id-iac-prod-saml-access-group' } }],
-        name: 'iac-prod-must-authenticate-with-saml',
-        sessionDuration: '24h',
-      },
-      type: policyType,
-    })
-    expect(resources.find((resource) => resource.name === 'iac-prod-saml-access-group')).toMatchObject({
-      inputs: { includes: [{ loginMethod: { id: 'id-iac-prod-aws-saml-identity-provider' } }] },
-    })
-    expect(resources.filter((resource) => resource.type === policyType)).toHaveLength(2)
+  test('removes SAML resources without adding another authentication path', () => {
+    expect(resources.filter((resource) => resource.name.includes('saml'))).toEqual([])
+    expect(resources.filter((resource) => resource.type === policyType)).toHaveLength(1)
+    expect(resources.filter((resource) => resource.type === groupType)).toHaveLength(1)
   })
 
-  test('registers native passkeys without replacing the existing SAML provider', () => {
+  test('registers only the native passkey identity provider', () => {
     const providers = resources.filter((resource) => resource.type === identityProviderType)
-    expect(providers).toHaveLength(2)
+    expect(providers).toHaveLength(1)
     expect(providers.find((provider) => provider.name === 'iac-prod-passkeys-identity-provider')?.inputs).toEqual({
       accountId: 'test-account',
       config: { loginPageAutoPrompt: false },
       name: 'iac-prod-passkeys',
       type: 'passkeys',
     })
-    expect(providers.find((provider) => provider.name === 'iac-prod-aws-saml-identity-provider')?.inputs).toMatchObject(
-      {
-        type: 'saml',
-      },
-    )
   })
 
   test('requires both an assigned email and the passkey login method', () => {

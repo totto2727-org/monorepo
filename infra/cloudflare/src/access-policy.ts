@@ -14,21 +14,3 @@ export const allowPasskeys = new cloudflare.ZeroTrustAccessPolicy(
   },
   { protect: true },
 )
-
-export const allowSaml = new cloudflare.ZeroTrustAccessPolicy(
-  config.resourceName('must-authenticate-with-saml'),
-  {
-    accountId: config.accountID,
-    decision: 'allow',
-    includes: [
-      {
-        group: {
-          id: group.saml.id,
-        },
-      },
-    ],
-    name: config.resourceName('must-authenticate-with-saml'),
-    sessionDuration: '24h',
-  },
-  config.protectedResourceOptions('must-authenticate-with-saml'),
-)

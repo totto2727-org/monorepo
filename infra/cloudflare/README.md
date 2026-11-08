@@ -2,7 +2,6 @@
 
 ## Prerequisites
 
-- [AWS setup and deployment](../aws/README.md): completed.
 - Cloudflare: API token creation for account `5643a837ef66765e7881c0831a36ebed`.
 - Commands: run from the repository root.
 
@@ -36,17 +35,7 @@ values:
     cloudflare:apiToken: ${cloudflare.CLOUDFLARE_API_TOKEN}
 ```
 
-## 3. AWS SAML Configuration
-
-AWS Console → **IAM Identity Center → Applications → Application details** → [`src/identity-provider.ts`](./src/identity-provider.ts):
-
-| AWS value        | Configuration key |
-| ---------------- | ----------------- |
-| SAML certificate | `idpPublicCerts`  |
-| SAML issuer      | `issuerUrl`       |
-| SAML sign-in URL | `ssoTargetUrl`    |
-
-## 4. Deploy
+## 3. Deploy
 
 ```bash
 pulumi up --cwd infra/cloudflare --stack production
