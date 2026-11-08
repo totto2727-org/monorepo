@@ -40,25 +40,3 @@ export const adminTotto2727 = createGroupMembership({
     name: 'totto2727',
   },
 })
-
-export const cloudflareAccessTotto2727 = createGroupMembership({
-  group: {
-    id: group.cloudflareAccess.groupId,
-    name: 'cloudflare-access',
-  },
-  user: {
-    id: user.totto2727.userId,
-    name: 'totto2727',
-  },
-})
-
-export const cloudflareAccessTest = createGroupMembership({
-  group: {
-    id: group.cloudflareAccess.groupId,
-    name: 'cloudflare-access',
-  },
-  user: {
-    id: user.test.userId,
-    name: 'test',
-  },
-})

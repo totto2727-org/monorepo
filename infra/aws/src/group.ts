@@ -15,5 +15,3 @@ const createGroup = (name: string, displayName: string) =>
   )
 
 export const admin = createGroup('admin', 'admin')
-
-export const cloudflareAccess = createGroup('cloudflare-access', 'cloudflare-access')
