@@ -148,6 +148,9 @@ importers:
 
   .:
     devDependencies:
+      '@totto2727/gitignore-patterns':
+        specifier: ^0.1.0
+        version: 0.1.0
       '@types/node':
         specifier: catalog:types
         version: 25.9.9
@@ -3122,6 +3125,9 @@ packages:
   '@textlint/utils@15.8.0':
     resolution: {integrity: sha512-waINJCI7sBVs1A3K05UFKe8QoNAsdJFCXr3PJ1QsgAf0BeEgCtyrLVcZUdbOtKxRkF4QB4NuClB0By1Ty4znpQ==}
 
+  '@totto2727/gitignore-patterns@0.1.0':
+    resolution: {integrity: sha512-hg8SkhlD4pDixWp3EDcsTTXkXM2KKR7H5Xl+ypqC0tced1Z7n3OG+rgBXkemOsgvYBP+TykpKztPyOrAi7ogRA==}
+
   '@tsconfig/strictest@2.0.8':
     resolution: {integrity: sha512-XnQ7vNz5HRN0r88GYf1J9JJjqtZPiHt2woGJOo2dYqyHGGcd6OLGqSlBB6p1j9mpzja6Oe5BoPqWmeDx6X9rLw==}
 
@@ -4561,6 +4567,10 @@ packages:
   ignore-walk@8.0.0:
     resolution: {integrity: sha512-FCeMZT4NiRQGh+YkeKMtWrOmBgWjHjMJ26WQWrRQyoyzqevdaGSakUaJW5xQYmjLlUVk2qUnCjYVBax9EKKg8A==}
     engines: {node: ^20.17.0 || >=22.9.0}
+
+  ignore@7.0.14:
+    resolution: {integrity: sha512-wCBiZ77u1tuWde6G/nfOtLaCTYcFDU5yCzARzK10y+rLhzYoL7a7yEemcopcc2Mzow7gZOIjnV2ym1NYmdiJOQ==}
+    engines: {node: '>= 4'}
 
   import-in-the-middle@3.5.2:
     resolution: {integrity: sha512-WseIA/4o56+GYO3RmlOPvejYi771OFeJEeK/ejROsr9bdjW+E5NXTOD1Di8TL40Qgg3JJX9aa97Hf8iiSVIKZw==}
@@ -8787,6 +8797,10 @@ snapshots:
 
   '@textlint/utils@15.8.0': {}
 
+  '@totto2727/gitignore-patterns@0.1.0':
+    dependencies:
+      ignore: 7.0.14
+
   '@tsconfig/strictest@2.0.8': {}
 
   '@tufjs/canonical-json@2.0.0': {}
@@ -10101,6 +10115,8 @@ snapshots:
   ignore-walk@8.0.0:
     dependencies:
       minimatch: 10.2.6
+
+  ignore@7.0.14: {}
 
   import-in-the-middle@3.5.2:
     dependencies:

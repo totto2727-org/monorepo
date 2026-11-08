@@ -1,9 +1,10 @@
+import { generateIgnorePatterns } from '@totto2727/gitignore-patterns'
 import core from 'ultracite/oxlint/core'
 import { defineConfig } from 'vite-plus'
 
 import oxlintPluginPreset from './js/package/oxlint-plugin/src/preset.ts'
 
-const ignorePatterns = ['**/__fixtures__/**']
+const ignorePatterns = [...(await generateIgnorePatterns(new URL('.', import.meta.url))), '**/__fixtures__/**']
 
 export default defineConfig({
   fmt: {
