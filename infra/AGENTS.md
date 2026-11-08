@@ -37,7 +37,7 @@ GitHub repository management using Pulumi:
 - Per-repository required CI checks and merge queue compatibility
 - No organization settings, membership, teams, or upstream repositories
 
-Follow the adoption procedure in [GitHub setup](./github/README.md) before applying changes.
+When changing GitHub repository policies, use the [GitHub configuration reference](./github/README.md).
 Do not delete existing protection rules or change repository visibility when adopting repositories.
 
 ## Common Tools
