@@ -4,7 +4,7 @@
   fetchFromGitHub,
 }:
 let
-  version = "0.1.7";
+  version = "0.1.9";
 in
 bun2nix.mkDerivation {
   pname = "monid";
@@ -13,7 +13,7 @@ bun2nix.mkDerivation {
     owner = "monid-ai";
     repo = "cli";
     rev = "v${version}";
-    hash = "sha256-RW709N7sWfkitoTRP5WvWbVAsaQOOnLQ0khXaYF+Xm4=";
+    hash = "sha256-5ybxVYPY8gYTUPfQknIBY+JY/NcMV4lkr0DGAESf6pA=";
   };
   module = "src/index.ts";
   bunDeps = bun2nix.fetchBunDeps {

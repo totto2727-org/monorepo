@@ -4,7 +4,7 @@
   fetchFromGitHub,
 }:
 let
-  version = "1.9.8";
+  version = "1.9.20";
 in
 bun2nix.mkDerivation {
   pname = "oo";
@@ -13,7 +13,7 @@ bun2nix.mkDerivation {
     owner = "oomol-lab";
     repo = "oo-cli";
     rev = "v${version}";
-    hash = "sha256-rLwndZ4faA3F14BDIz7KkRVzFGCtJZLrrltzqbKWTJA=";
+    hash = "sha256-/Wk92QXA2R3+hv37Nh+eGTruR8rcBfqJnc5m1d79Ups=";
   };
   module = "index.ts";
   bunDeps = bun2nix.fetchBunDeps {
