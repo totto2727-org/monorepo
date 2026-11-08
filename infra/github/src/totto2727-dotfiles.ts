@@ -7,5 +7,5 @@ const createRepository = createRepositoryFactory(
   new pulumi.Config('githubOwners').requireSecret('totto2727DotfilesToken'),
 )
 
-// CI in nix#1 is push-only. Require check only after PR validation is available.
-export const nix = createRepository('nix', {}, [])
+// Merge nix#1 to install CI before applying this policy.
+export const nix = createRepository('nix')

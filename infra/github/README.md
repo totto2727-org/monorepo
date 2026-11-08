@@ -219,7 +219,7 @@ The Provider structure does not need to change.
 ## Adopt `totto2727-dotfiles/nix`
 
 The only managed repository for `totto2727-dotfiles` is [`nix`](https://github.com/totto2727-dotfiles/nix), declared in [`src/totto2727-dotfiles.ts`](./src/totto2727-dotfiles.ts).
-It is an existing public, non-fork, non-template repository with Issues enabled and an empty description and homepage.
+It is an existing public, non-fork, non-template repository with Issues enabled, no topics, and an empty description and homepage.
 The declaration preserves those values and applies the shared repository policy.
 This follow-up is stacked on monorepo PR #397 and must retain that implementation as its base.
 
@@ -235,10 +235,12 @@ Adopt that existing alert setting as `vulnerability-alerts-totto2727-dotfiles-ni
 Preserve all existing protection rules and verify that preview proposes no repository creation, replacement, deletion, visibility change, or renaming.
 Import and apply are separate operations that require explicit authorization.
 
-No status check is required initially.
-As checked on 2026-11-08, [`nix` PR #1](https://github.com/totto2727-dotfiles/nix/pull/1) is open, `main` has no workflow directory, and that PR defines a `check` job triggered only by `push`.
-Merging PR #1 alone is not sufficient to make `check` a safe required PR check, especially for fork contributions.
-Enable PR-triggered validation first, verify that `check` reports on representative pull requests, then change the declaration's third argument to `['check']` in a separate reviewed change.
+The declaration uses the factory's default required `check` status from GitHub Actions.
+Merge [`nix` PR #1](https://github.com/totto2727-dotfiles/nix/pull/1) to install CI before applying this policy.
+As checked on 2026-11-08, PR #1 is open and `main` has no workflow directory.
+Its push-triggered `check` job already passed on the PR head SHA in [run 42442093745](https://github.com/totto2727-dotfiles/nix/actions/runs/42442093745).
+A push check on the same PR head SHA can satisfy a required status check, so a `pull_request` trigger is not a prerequisite for this declaration.
+Fork contributions need separate CI coverage because a push in a fork does not run the base repository's push workflow.
 If merge queues are enabled later, verify `merge_group` coverage before requiring the check for queued merges.
 
 ## Checks

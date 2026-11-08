@@ -1,7 +1,7 @@
 import * as pulumi from '@pulumi/pulumi'
 import { expect, test } from 'vite-plus/test'
 
-test('adopts only nix for the dotfiles owner without requiring unavailable PR checks', async () => {
+test('adopts only nix for the dotfiles owner with the shared required check', async () => {
   const resources: pulumi.runtime.MockResourceArgs[] = []
   await pulumi.runtime.setMocks(
     {
@@ -52,14 +52,19 @@ test('adopts only nix for the dotfiles owner without requiring unavailable PR ch
     homepageUrl: '',
     isTemplate: false,
     name: 'nix',
+    topics: [],
     visibility: 'public',
   })
   expect(resources.find(({ name }) => name === 'default-branch-totto2727-dotfiles-nix')?.inputs).toMatchObject({
     rules: { deletion: true, nonFastForward: true, pullRequest: {} },
   })
-  expect(resources.find(({ name }) => name === 'default-branch-totto2727-dotfiles-nix')?.inputs).not.toHaveProperty(
-    'rules.requiredStatusChecks',
-  )
+  expect(resources.find(({ name }) => name === 'default-branch-totto2727-dotfiles-nix')?.inputs).toMatchObject({
+    rules: {
+      requiredStatusChecks: {
+        requiredChecks: [{ context: 'check', integrationId: 15_368 }],
+      },
+    },
+  })
   expect(resources.find(({ name }) => name === 'vulnerability-alerts-totto2727-dotfiles-nix')?.inputs).toEqual({
     enabled: true,
     repository: 'nix',
