@@ -128,6 +128,9 @@ catalogs:
     '@pulumi/cloudflare':
       specifier: ^6.23.3
       version: 6.23.3
+    '@pulumi/github':
+      specifier: ^6.15.1
+      version: 6.15.1
     '@pulumi/pulumi':
       specifier: ^3.268.0
       version: 3.268.0
@@ -196,6 +199,21 @@ importers:
       '@pulumi/cloudflare':
         specifier: catalog:pulumi
         version: 6.23.3(supports-color@10.2.2)(typescript@6.0.3)
+      '@pulumi/pulumi':
+        specifier: catalog:pulumi
+        version: 3.268.0(supports-color@10.2.2)(typescript@6.0.3)
+      '@totto2727/fp':
+        specifier: workspace:*
+        version: link:../../js/package/fp
+      effect:
+        specifier: catalog:effect
+        version: 4.0.2
+
+  infra/github:
+    devDependencies:
+      '@pulumi/github':
+        specifier: catalog:pulumi
+        version: 6.15.1(supports-color@10.2.2)(typescript@6.0.3)
       '@pulumi/pulumi':
         specifier: catalog:pulumi
         version: 3.268.0(supports-color@10.2.2)(typescript@6.0.3)
@@ -2716,6 +2734,9 @@ packages:
 
   '@pulumi/cloudflare@6.23.3':
     resolution: {integrity: sha512-etEo7csPhmv2K2dbRfyj9lCKcka5vTH9qowVufK9b+iDB2qEta9M/CPo+2QgsaANeEmxRTztqg+pIi+Xtzhjow==}
+
+  '@pulumi/github@6.15.1':
+    resolution: {integrity: sha512-lXoLADTzeUvhOwxqnpt1Cz2loBm7B1ufsztBBvW4QiBkam6zbNOyq6WbOQVFMVEpoKpPhQxENTLTiJt1NKxLOQ==}
 
   '@pulumi/pulumi@3.268.0':
     resolution: {integrity: sha512-VtTIr44eC78BX4cAeh2MEqJqVFu5/UfrmsxjLdH73YIPr5igPEo9JB4g5yqncTHcXNxbkxJXndMOEm1CkpJA5Q==}
@@ -8161,6 +8182,14 @@ snapshots:
   '@pulumi/cloudflare@6.23.3(supports-color@10.2.2)(typescript@6.0.3)':
     dependencies:
       '@pulumi/pulumi': 3.274.1(supports-color@10.2.2)(typescript@6.0.3)
+    transitivePeerDependencies:
+      - supports-color
+      - ts-node
+      - typescript
+
+  '@pulumi/github@6.15.1(supports-color@10.2.2)(typescript@6.0.3)':
+    dependencies:
+      '@pulumi/pulumi': 3.268.0(supports-color@10.2.2)(typescript@6.0.3)
     transitivePeerDependencies:
       - supports-color
       - ts-node

@@ -27,6 +27,18 @@ Cloudflare Zero Trust configuration using Pulumi:
 - Native passkey identity provider
 - Workers deployment
 
+### GitHub (`infra/github/`)
+
+GitHub repository management using Pulumi:
+
+- `totto2727-org` repositories, with owner-specific Providers for additional organizations
+- Merge settings and additive default-branch rulesets
+- Per-repository required CI checks and merge queue compatibility
+- No organization settings, membership, teams, or upstream repositories
+
+For GitHub token permissions and ESC configuration, see the [GitHub setup guide](./github/README.md).
+Do not delete existing protection rules or change repository visibility when adopting repositories.
+
 ## Common Tools
 
 ### Infrastructure as Code
@@ -40,6 +52,7 @@ Cloudflare Zero Trust configuration using Pulumi:
 
 - **AWS**: OIDC authentication with IAM roles
 - **Cloudflare**: API token management
+- **GitHub**: GitHub App installation tokens through ESC `gh-login`
 
 ## Configuration Files
 
@@ -48,7 +61,7 @@ Cloudflare Zero Trust configuration using Pulumi:
 ```yaml
 # Pulumi.{stack}.yaml
 environment:
-  - aws/production # or cloudflare/production
+  - aws/production # or cloudflare/production or github/production
 ```
 
 ### TypeScript Configuration

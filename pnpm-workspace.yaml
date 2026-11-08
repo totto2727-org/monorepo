@@ -63,6 +63,7 @@ catalogs:
     '@pulumi/aws': ^7.50.0
     '@pulumi/awsx': ^3.10.0
     '@pulumi/cloudflare': ^6.23.3
+    '@pulumi/github': ^6.15.1
     '@pulumi/pulumi': ^3.268.0
   remix:
     remix: ^3.0.0

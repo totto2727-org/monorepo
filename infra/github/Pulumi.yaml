@@ -1,0 +1,3 @@
+name: github
+description: Repository settings and default-branch policies for workspace repositories
+runtime: bun
