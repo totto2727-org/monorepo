@@ -31,7 +31,7 @@ Cloudflare Zero Trust configuration using Pulumi:
 
 GitHub repository management using Pulumi:
 
-- `totto2727-org` repositories, with owner-specific Providers for additional organizations
+- `totto2727-org` repositories and `totto2727-dotfiles/nix`, with owner-specific Providers
 - Merge settings and additive default-branch rulesets
 - Per-repository required CI checks and merge queue compatibility
 - No organization settings, membership, teams, or upstream repositories

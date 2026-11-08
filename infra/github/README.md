@@ -216,6 +216,31 @@ However, a shared App private key can issue tokens for all of that App's install
 If private keys must also be separate, create one App per owner and use its credentials in the corresponding ESC token entry.
 The Provider structure does not need to change.
 
+## Adopt `totto2727-dotfiles/nix`
+
+The only managed repository for `totto2727-dotfiles` is [`nix`](https://github.com/totto2727-dotfiles/nix), declared in [`src/totto2727-dotfiles.ts`](./src/totto2727-dotfiles.ts).
+It is an existing public, non-fork, non-template repository with Issues enabled and an empty description and homepage.
+The declaration preserves those values and applies the shared repository policy.
+This follow-up is stacked on monorepo PR #397 and must retain that implementation as its base.
+
+Before preview or deployment, confirm that the GitHub App is installed for `totto2727-dotfiles` with access to `nix` and that ESC provides `githubOwners:totto2727DotfilesToken` as described above.
+Do not substitute another owner's installation token.
+This change does not create or modify App installations, ESC secrets, or remote Pulumi state.
+
+Before any managed apply, separately authorize and import the existing repository into the `production` stack with logical name `repository-totto2727-dotfiles-nix`, import ID `nix`, and the `totto2727-dotfiles` Provider.
+Do not run an unscoped import with another owner's credentials.
+Inspect existing remote rulesets and vulnerability-alert state before adoption and import matching resources if they already exist.
+The 2026-11-08 read-only inspection returned no repository rulesets and confirmed vulnerability alerts are already enabled.
+Adopt that existing alert setting as `vulnerability-alerts-totto2727-dotfiles-nix` rather than treating it as a newly enabled feature.
+Preserve all existing protection rules and verify that preview proposes no repository creation, replacement, deletion, visibility change, or renaming.
+Import and apply are separate operations that require explicit authorization.
+
+No status check is required initially.
+As checked on 2026-11-08, [`nix` PR #1](https://github.com/totto2727-dotfiles/nix/pull/1) is open, `main` has no workflow directory, and that PR defines a `check` job triggered only by `push`.
+Merging PR #1 alone is not sufficient to make `check` a safe required PR check, especially for fork contributions.
+Enable PR-triggered validation first, verify that `check` reports on representative pull requests, then change the declaration's third argument to `['check']` in a separate reviewed change.
+If merge queues are enabled later, verify `merge_group` coverage before requiring the check for queued merges.
+
 ## Checks
 
 ```bash
