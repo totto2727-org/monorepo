@@ -46,39 +46,30 @@ AWS Console → **IAM Identity Center → Applications → Application details**
 | SAML issuer      | `issuerUrl`       |
 | SAML sign-in URL | `ssoTargetUrl`    |
 
-## 4. Deploy
+## 4. Access Authentication
 
-### Passkey rollout
+The applications support the native `passkeys` identity provider and AWS SAML.
+Their login pages allow users to choose a method instead of redirecting directly to SAML.
+Native passkey support requires `@pulumi/cloudflare` 6.23.3 or later.
+Automatic browser prompts are disabled so login-method selection remains visible.
 
-The stack adds a native `passkeys` identity provider alongside AWS SAML.
-Both application login pages offer a choice instead of redirecting directly to SAML.
-The passkey rule group permits only the two email addresses currently assigned to the AWS Cloudflare Access application and requires authentication with the passkey provider.
-Keep email rules in `includes` and the login-method rule in `requires`, so a registered passkey alone does not grant access.
-AWS SAML configuration and assignments are retained during this rollout.
+Manage allowed passkey users in [`src/access-group.ts`](./src/access-group.ts).
+Keep email rules in `includes` and the login-method rule in `requires`, so access requires both an allowed email and authentication with the passkey provider.
+This policy limits application access, not who can register a passkey.
 
-1. Run `pulumi preview --cwd infra/cloudflare --stack production` and confirm that no resources are deleted or replaced.
-2. Deploy this introduction change.
-3. Open both `https://projektor.totto2727.dev` and `https://cloudflare.totto2727.dev` in a fresh browser session.
-4. Select **Sign in with a passkey**, then **Don't have a passkey? Set one up**, and verify the identity with the existing login method.
-5. Register a passkey and confirm a new passkey sign-in works for each allowed user on both applications.
-6. Confirm an unlisted email cannot access either application and AWS SAML still works as the fallback.
-7. If the App Launcher or other applications use the old SAML provider, migrate and test them separately before retiring SAML.
-8. Merge and deploy the separate SAML-removal change only after these checks pass.
-
-The stack requires `@pulumi/cloudflare` 6.23.3 or later for native `passkeys` support.
-It sets `loginPageAutoPrompt` to `false` so users can choose between passkeys and the SAML fallback.
-Preview and mock tests do not prove that the Cloudflare API accepts this newly introduced provider type or that browser enrollment works.
-If the API rejects it, stop the rollout and keep SAML until the provider supports it.
-If a Passkeys provider already exists in the account, import it as `iac-prod-passkeys-identity-provider` before deploying instead of creating a duplicate.
-
-In the final passkey-only configuration, Access verifies new enrollments with an email code.
 Protect the allowed mailboxes and keep a recovery passkey available.
 To remove access, update the email allowlist and revoke active Access sessions.
 Deleting a passkey alone does not end existing sessions.
 
+## 5. Deploy
+
 ```bash
+pulumi preview --cwd infra/cloudflare --stack production
 pulumi up --cwd infra/cloudflare --stack production
 ```
+
+Preview and mock tests do not verify browser enrollment or application authorization.
+Verify sign-in and denial behavior with fresh browser sessions when changing authentication policies.
 
 ## Checks
 
