@@ -4,6 +4,8 @@ import { afterAll, beforeAll, describe, expect, test, vi } from 'vite-plus/test'
 const applicationType = 'cloudflare:index/zeroTrustAccessApplication:ZeroTrustAccessApplication'
 const policyType = 'cloudflare:index/zeroTrustAccessPolicy:ZeroTrustAccessPolicy'
 const tagType = 'cloudflare:index/zeroTrustAccessTag:ZeroTrustAccessTag'
+const identityProviderType = 'cloudflare:index/zeroTrustAccessIdentityProvider:ZeroTrustAccessIdentityProvider'
+const groupType = 'cloudflare:index/zeroTrustAccessGroup:ZeroTrustAccessGroup'
 const resources: pulumi.runtime.MockResourceArgs[] = []
 let outputs: {
   cloudflareOsAccessAudience: string
@@ -63,13 +65,16 @@ describe('Deployment Access applications', () => {
       expect(applications.find((application) => application.name === `iac-prod-${name}`)).toMatchObject({
         inputs: {
           accountId: 'test-account',
-          allowedIdps: ['id-iac-prod-aws-saml-identity-provider'],
+          allowedIdps: ['id-iac-prod-passkeys-identity-provider', 'id-iac-prod-aws-saml-identity-provider'],
           appLauncherVisible: true,
-          autoRedirectToIdentity: true,
+          autoRedirectToIdentity: false,
           destinations: [{ type: 'public', uri: domain }],
           domain,
           name: `iac-prod-${name}`,
-          policies: [{ id: 'id-iac-prod-must-authenticate-with-saml', precedence: 1 }],
+          policies: [
+            { id: 'id-iac-prod-must-authenticate-with-passkeys', precedence: 1 },
+            { id: 'id-iac-prod-must-authenticate-with-saml', precedence: 2 },
+          ],
           sessionDuration: '24h',
           type: 'self_hosted',
         },
@@ -92,7 +97,44 @@ describe('Deployment Access applications', () => {
     expect(resources.find((resource) => resource.name === 'iac-prod-saml-access-group')).toMatchObject({
       inputs: { includes: [{ loginMethod: { id: 'id-iac-prod-aws-saml-identity-provider' } }] },
     })
-    expect(resources.filter((resource) => resource.type === policyType)).toHaveLength(1)
+    expect(resources.filter((resource) => resource.type === policyType)).toHaveLength(2)
+  })
+
+  test('registers native passkeys without replacing the existing SAML provider', () => {
+    const providers = resources.filter((resource) => resource.type === identityProviderType)
+    expect(providers).toHaveLength(2)
+    expect(providers.find((provider) => provider.name === 'iac-prod-passkeys-identity-provider')?.inputs).toEqual({
+      accountId: 'test-account',
+      config: { loginPageAutoPrompt: false },
+      name: 'iac-prod-passkeys',
+      type: 'passkeys',
+    })
+    expect(providers.find((provider) => provider.name === 'iac-prod-aws-saml-identity-provider')?.inputs).toMatchObject(
+      {
+        type: 'saml',
+      },
+    )
+  })
+
+  test('requires both an assigned email and the passkey login method', () => {
+    const passkeyGroup = resources.find((resource) => resource.name === 'iac-prod-passkey-users-access-group')
+    expect(passkeyGroup?.type).toBe(groupType)
+    expect(passkeyGroup?.inputs).toEqual({
+      accountId: 'test-account',
+      includes: [
+        { email: { email: 'kaihatu.totto2727@gmail.com' } },
+        { email: { email: 'hayato.2000.0727@gmail.com' } },
+      ],
+      name: 'iac-prod-passkey-users',
+      requires: [{ loginMethod: { id: 'id-iac-prod-passkeys-identity-provider' } }],
+    })
+    expect(resources.find((resource) => resource.name === 'iac-prod-must-authenticate-with-passkeys')?.inputs).toEqual({
+      accountId: 'test-account',
+      decision: 'allow',
+      includes: [{ group: { id: 'id-iac-prod-passkey-users-access-group' } }],
+      name: 'iac-prod-must-authenticate-with-passkeys',
+      sessionDuration: '24h',
+    })
   })
 
   test('creates ownership tags once and attaches them to both applications', () => {
