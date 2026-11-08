@@ -64,6 +64,13 @@ export const glossshift = createRepository('glossshift', {
   description: 'A macOS translation app and CLI with OpenAI-compatible providers and streaming output',
 })
 export const mdts = createRepository('mdts', { description: 'Application repository for the mdts project' }, [])
+export const nixCache = createRepository(
+  'nix-cache',
+  {
+    description: 'Authenticated Nix binary cache on Cloudflare Workers and R2',
+  },
+  [],
+)
 export const openConnector = createRepository(
   'open-connector',
   {
