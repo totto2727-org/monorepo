@@ -92,9 +92,6 @@ pulumi import --cwd infra/aws --stack production --generate-code=false \
 
 ## 4. Deploy
 
-Cloudflare Access uses native passkeys and does not depend on this AWS stack.
-AWS users, administrator access, and Pulumi OIDC authentication remain managed here.
-
 ```bash
 pulumi up --cwd infra/aws --stack production
 ```
@@ -103,7 +100,6 @@ pulumi up --cwd infra/aws --stack production
 
 ```bash
 vp check infra/aws
-vp test run --dir infra/aws
 ```
 
 ## References
