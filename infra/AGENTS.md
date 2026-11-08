@@ -28,6 +28,18 @@ Cloudflare Zero Trust configuration using Pulumi:
 - Identity providers
 - Workers deployment
 
+### GitHub (`infra/github/`)
+
+GitHub repository management using Pulumi:
+
+- Existing `totto2727-org` repositories represented in the workspace
+- Merge settings and additive default-branch rulesets
+- Per-repository required CI checks and merge queue compatibility
+- No organization settings, membership, teams, or upstream repositories
+
+Follow the adoption procedure in [GitHub setup](./github/README.md) before applying changes.
+Do not delete existing protection rules or change repository visibility when adopting repositories.
+
 ## Common Tools
 
 ### Infrastructure as Code
