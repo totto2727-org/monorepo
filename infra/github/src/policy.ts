@@ -2,48 +2,7 @@ import type * as github from '@pulumi/github'
 import type * as pulumi from '@pulumi/pulumi'
 import { Array } from 'effect'
 
-export const owner = 'totto2727-org'
-
-export const requireManagedOwner = (configuredOwner: string) => {
-  if (configuredOwner !== owner) {
-    throw new Error(`This project only manages ${owner}, not ${configuredOwner}`)
-  }
-}
-
-// These inputs remain owned by existing repository administrators, not this stack.
-const preservedRepositoryInputs = [
-  'allowForking',
-  'archiveOnDestroy',
-  'archived',
-  'autoInit',
-  'defaultBranch',
-  'description',
-  'fork',
-  'gitignoreTemplate',
-  'hasDiscussions',
-  'hasDownloads',
-  'hasIssues',
-  'hasProjects',
-  'hasWiki',
-  'homepageUrl',
-  'ignoreVulnerabilityAlertsDuringRead',
-  'isTemplate',
-  'licenseTemplate',
-  'pages',
-  'private',
-  'securityAndAnalysis',
-  'sourceOwner',
-  'sourceRepo',
-  'squashMergeCommitMessage',
-  'squashMergeCommitTitle',
-  'template',
-  'topics',
-  'visibility',
-  'vulnerabilityAlerts',
-] satisfies (keyof github.RepositoryArgs)[]
-
 export const repositoryOptions = (name: string): pulumi.CustomResourceOptions => ({
-  ignoreChanges: preservedRepositoryInputs,
   // Fail closed on empty state: adopt this exact repository, never create a replacement.
   import: name,
   protect: true,
@@ -52,13 +11,29 @@ export const repositoryOptions = (name: string): pulumi.CustomResourceOptions =>
 
 export const repositorySettings: Omit<github.RepositoryArgs, 'name'> = {
   allowAutoMerge: true,
+  allowForking: true,
   allowMergeCommit: true,
   allowRebaseMerge: false,
   allowSquashMerge: false,
   allowUpdateBranch: true,
+  archived: false,
   deleteBranchOnMerge: true,
+  description: '',
+  hasDiscussions: false,
+  hasIssues: true,
+  hasProjects: true,
+  hasWiki: true,
+  homepageUrl: '',
+  isTemplate: false,
   mergeCommitMessage: 'PR_TITLE',
   mergeCommitTitle: 'MERGE_MESSAGE',
+  securityAndAnalysis: {
+    secretScanning: { status: 'disabled' },
+    secretScanningNonProviderPatterns: { status: 'disabled' },
+    secretScanningPushProtection: { status: 'disabled' },
+  },
+  topics: [],
+  visibility: 'public',
   webCommitSignoffRequired: true,
 }
 

@@ -1,7 +1,7 @@
 import * as pulumi from '@pulumi/pulumi'
-import { afterAll, beforeAll, describe, expect, test } from 'vite-plus/test'
+import { beforeAll, describe, expect, test } from 'vite-plus/test'
 
-import { defaultBranchRules, repositoryOptions, repositorySettings, requireManagedOwner } from './policy.ts'
+import { defaultBranchRules, repositoryOptions, repositorySettings } from './policy.ts'
 
 const repositoryType = 'github:index/repository:Repository'
 const rulesetType = 'github:index/repositoryRuleset:RepositoryRuleset'
@@ -58,7 +58,6 @@ let resolvedNames: string[] = []
 let resolvedRulesetIds: string[] = []
 
 beforeAll(async () => {
-  pulumi.runtime.setAllConfig({ 'github:owner': 'totto2727-org' })
   await pulumi.runtime.setMocks(
     {
       call: (args) => {
@@ -83,10 +82,6 @@ beforeAll(async () => {
   await promise
 })
 
-afterAll(() => {
-  pulumi.runtime.setAllConfig({})
-})
-
 describe('Existing workspace repository management', () => {
   test('manages exactly the 35 organization repositories and no organization resources', () => {
     expect(resolvedNames.toSorted()).toEqual(expectedNames.toSorted())
@@ -95,11 +90,14 @@ describe('Existing workspace repository management', () => {
     expect(new Set(resolvedRulesetIds).size).toBe(35)
     expect(resources.filter((resource) => resource.type === repositoryType)).toHaveLength(35)
     expect(resources.filter((resource) => resource.type === rulesetType)).toHaveLength(35)
-    expect(resources.every((resource) => [repositoryType, rulesetType].includes(resource.type))).toBe(true)
+    expect(resources.filter((resource) => resource.type === 'pulumi:providers:github')).toHaveLength(1)
+    expect(
+      resources.every((resource) => [repositoryType, rulesetType, 'pulumi:providers:github'].includes(resource.type)),
+    ).toBe(true)
   })
 
-  test('owns only the intended repository merge settings', () => {
-    expect(repositorySettings).toEqual({
+  test('manages the intended repository merge settings and explicit existing attributes', () => {
+    expect(repositorySettings).toMatchObject({
       allowAutoMerge: true,
       allowMergeCommit: true,
       allowRebaseMerge: false,
@@ -111,47 +109,42 @@ describe('Existing workspace repository management', () => {
       webCommitSignoffRequired: true,
     })
     for (const name of expectedNames) {
-      expect(resources.find((resource) => resource.name === `repository-${name}`)?.inputs).toEqual({
-        ...repositorySettings,
+      expect(resources.find((resource) => resource.name === `repository-${name}`)?.inputs).toMatchObject({
+        allowAutoMerge: true,
+        allowForking: true,
+        allowMergeCommit: true,
+        allowRebaseMerge: false,
+        allowSquashMerge: false,
+        allowUpdateBranch: true,
+        archived: false,
+        deleteBranchOnMerge: true,
+        hasDiscussions: false,
+        mergeCommitMessage: 'PR_TITLE',
+        mergeCommitTitle: 'MERGE_MESSAGE',
         name,
+        visibility: 'public',
+        webCommitSignoffRequired: true,
+      })
+    }
+    expect(resources.find((resource) => resource.name === 'repository-monorepo')?.inputs).toMatchObject({
+      hasProjects: false,
+      hasWiki: false,
+      securityAndAnalysis: {
+        secretScanning: { status: 'enabled' },
+        secretScanningPushProtection: { status: 'enabled' },
+      },
+    })
+    for (const name of expectedNames) {
+      expect(resources.find((resource) => resource.name === `repository-${name}`)?.inputs).toMatchObject({
+        isTemplate: name.startsWith('template-'),
       })
     }
   })
 
-  test('adopts exact existing names and preserves unmanaged repository attributes', () => {
+  test('adopts exact existing names without ignoring configuration drift', () => {
     for (const name of expectedNames) {
       expect(resources.find((resource) => resource.name === `repository-${name}`)?.id).toBe(name)
       expect(repositoryOptions(name)).toEqual({
-        ignoreChanges: [
-          'allowForking',
-          'archiveOnDestroy',
-          'archived',
-          'autoInit',
-          'defaultBranch',
-          'description',
-          'fork',
-          'gitignoreTemplate',
-          'hasDiscussions',
-          'hasDownloads',
-          'hasIssues',
-          'hasProjects',
-          'hasWiki',
-          'homepageUrl',
-          'ignoreVulnerabilityAlertsDuringRead',
-          'isTemplate',
-          'licenseTemplate',
-          'pages',
-          'private',
-          'securityAndAnalysis',
-          'sourceOwner',
-          'sourceRepo',
-          'squashMergeCommitMessage',
-          'squashMergeCommitTitle',
-          'template',
-          'topics',
-          'visibility',
-          'vulnerabilityAlerts',
-        ],
         import: name,
         protect: true,
         retainOnDelete: true,
@@ -198,14 +191,12 @@ describe('Existing workspace repository management', () => {
     }
   })
 
-  test('rejects empty or unrelated owners before repository management', () => {
-    expect(() => {
-      requireManagedOwner('totto2727-org')
-    }).not.toThrow()
-    for (const owner of ['', 'TAJD', 'totto2727', 'nixcache', 'upstream']) {
-      expect(() => {
-        requireManagedOwner(owner)
-      }).toThrow('This project only manages totto2727-org')
+  test('binds every repository and ruleset to the fixed organization provider', () => {
+    expect(resources.find((resource) => resource.type === 'pulumi:providers:github')?.inputs).toMatchObject({
+      owner: 'totto2727-org',
+    })
+    for (const resource of resources.filter((entry) => [repositoryType, rulesetType].includes(entry.type))) {
+      expect(resource.provider).toContain('pulumi:providers:github::github::id-github')
     }
   })
 })

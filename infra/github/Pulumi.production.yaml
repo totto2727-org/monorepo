@@ -1,2 +1,2 @@
-config:
-  github:owner: totto2727-org
+environment:
+  - github/production
