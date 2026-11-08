@@ -93,7 +93,6 @@ pulumi import --cwd infra/aws --stack production --generate-code=false \
 ## 4. Deploy
 
 Cloudflare Access uses native passkeys and does not depend on this AWS stack.
-For existing installations, follow the [legacy SAML retirement procedure](../cloudflare/README.md#retire-legacy-aws-saml) before removing the protected integration resources.
 AWS users, administrator access, and Pulumi OIDC authentication remain managed here.
 
 ```bash
