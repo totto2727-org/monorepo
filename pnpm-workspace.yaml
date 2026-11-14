@@ -70,7 +70,5 @@ overrides:
 
 allowBuilds:
   esbuild: true
-  msgpackr-extract: true
   protobufjs: false
-  sharp: true
   workerd: true
