@@ -4,9 +4,9 @@ description: Publish a MoonBit package to the mooncakes.io registry, skipping an
 
 inputs:
   dev-shell:
-    description: Ignored. Retained for existing callers during migration.
+    description: Nix devShell to use only for legacy callers without the SDK on PATH.
     required: false
-    deprecationMessage: MoonBit publishing no longer uses a Nix dev shell. Remove this input.
+    default: default
   token:
     description: >
       API token for the mooncakes.io registry. Store this as a repository
@@ -27,27 +27,20 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Detect MoonBit
-      id: moonbit
-      shell: bash
-      run: |
-        if command -v moon >/dev/null; then
-          echo 'installed=true' >> "$GITHUB_OUTPUT"
-        fi
-
-    # Older workflows call publish-moonbit without a setup-moonbit step.
-    - name: Set up MoonBit for legacy callers
-      if: steps.moonbit.outputs.installed != 'true'
-      uses: totto2727-org/monorepo/.github/actions/setup-moonbit@main
-
     - name: Save credentials and publish package
       shell: bash
       working-directory: ${{ inputs.package-path }}
       env:
+        LEGACY_DEV_SHELL: ${{ inputs.dev-shell }}
         MOONCAKES_TOKEN: ${{ inputs.token }}
         PUBLISH_DRY_RUN: ${{ inputs.dry-run }}
       run: |
         set -euo pipefail
+
+        if ! command -v moon >/dev/null; then
+          nix_env="$(nix print-dev-env "$GITHUB_WORKSPACE#$LEGACY_DEV_SHELL")"
+          eval "$nix_env"
+        fi
 
         mkdir -p ~/.moon
         tmp_credentials="$(mktemp -p ~/.moon credentials.json.XXXXXX)"
