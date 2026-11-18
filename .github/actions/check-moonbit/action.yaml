@@ -1,11 +1,11 @@
 name: Check MoonBit
-description: Check the MoonBit workspace with the Nix-managed toolchain.
+description: Check the MoonBit workspace after running setup-moonbit.
 
 inputs:
   dev-shell:
-    description: Nix devShell attribute to load.
+    description: Legacy Nix shell for auxiliary tools. New callers must provide those tools separately.
     required: false
-    default: default
+    deprecationMessage: Set up auxiliary tools separately and remove this input.
 
 runs:
   using: composite
@@ -13,10 +13,15 @@ runs:
     - name: Check MoonBit workspace
       shell: bash
       env:
-        NIX_DEV_SHELL: ${{ inputs.dev-shell }}
+        LEGACY_DEV_SHELL: ${{ inputs.dev-shell }}
       run: |
-        eval "$(nix print-dev-env "$GITHUB_WORKSPACE#$NIX_DEV_SHELL")"
-        moon fmt --check
-        moon check --deny-warn
-        moon build
-        moon test
+        moon_bin="$(command -v moon)"
+        if [[ -n "$LEGACY_DEV_SHELL" ]]; then
+          nix_env="$(nix print-dev-env "$GITHUB_WORKSPACE#$LEGACY_DEV_SHELL")"
+          eval "$nix_env"
+          export PATH="${moon_bin%/*}:$PATH"
+        fi
+        "$moon_bin" fmt --check
+        "$moon_bin" check --deny-warn
+        "$moon_bin" build
+        "$moon_bin" test

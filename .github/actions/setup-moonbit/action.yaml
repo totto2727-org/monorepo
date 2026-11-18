@@ -1,19 +1,18 @@
 name: Setup MoonBit
-description: Update the MoonBit registry with the Nix-managed toolchain.
+description: Install the stable MoonBit toolchain and update the registry.
 
 inputs:
   dev-shell:
-    description: Nix devShell attribute to load.
+    description: Ignored. Retained for existing callers during migration.
     required: false
-    default: default
+    deprecationMessage: MoonBit setup no longer uses a Nix dev shell. Remove this input.
 
 runs:
   using: composite
   steps:
+    - name: Set up MoonBit
+      uses: hustcer/setup-moonbit@618b32d610fecdbe9069cefcc01b7bcdb03ede29 # v1.26
+
     - name: Update MoonBit registry
       shell: bash
-      env:
-        NIX_DEV_SHELL: ${{ inputs.dev-shell }}
-      run: |
-        eval "$(nix print-dev-env "$GITHUB_WORKSPACE#$NIX_DEV_SHELL")"
-        moon update
+      run: moon update
