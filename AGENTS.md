@@ -81,9 +81,7 @@ vp run --parallel ci          # Run check / test / build across the workspace ig
 
 Run `vp run w:setup` first when generated outputs must exist before parallel CI-style execution.
 
-This repository no longer contains a MoonBit workspace. Root tasks and CI do not run MoonBit commands.
-In external repositories, run the shared `setup-moonbit` action before `check-moonbit` or `publish-moonbit`. The setup action uses `hustcer/setup-moonbit` to install the stable SDK and update the registry.
-Use the Nix MoonBit toolchain for local development. Keep Nix in CI only for separate needs, such as building a Nix package or provisioning an external CLI for tests.
+This repository no longer contains a MoonBit workspace. Shared MoonBit GitHub Actions remain available to external repositories, but root tasks and CI do not run MoonBit commands.
 
 ### Targeting a single package
 

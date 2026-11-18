@@ -1,12 +1,21 @@
 name: Check MoonBit
-description: Check the MoonBit workspace after running setup-moonbit.
+description: Check the MoonBit workspace with the Nix-managed toolchain.
+
+inputs:
+  dev-shell:
+    description: Nix devShell attribute to load.
+    required: false
+    default: default
 
 runs:
   using: composite
   steps:
     - name: Check MoonBit workspace
       shell: bash
+      env:
+        NIX_DEV_SHELL: ${{ inputs.dev-shell }}
       run: |
+        eval "$(nix print-dev-env "$GITHUB_WORKSPACE#$NIX_DEV_SHELL")"
         moon fmt --check
         moon check --deny-warn
         moon build
