@@ -1,24 +1,12 @@
 name: Check MoonBit
 description: Check the MoonBit workspace after running setup-moonbit.
 
-inputs:
-  dev-shell:
-    description: Nix devShell to use only for legacy callers without the SDK on PATH.
-    required: false
-    default: default
-
 runs:
   using: composite
   steps:
     - name: Check MoonBit workspace
       shell: bash
-      env:
-        LEGACY_DEV_SHELL: ${{ inputs.dev-shell }}
       run: |
-        if ! command -v moon >/dev/null; then
-          nix_env="$(nix print-dev-env "$GITHUB_WORKSPACE#$LEGACY_DEV_SHELL")"
-          eval "$nix_env"
-        fi
         moon fmt --check
         moon check --deny-warn
         moon build
