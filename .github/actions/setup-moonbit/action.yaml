@@ -1,19 +1,12 @@
 name: Setup MoonBit
-description: Legacy Nix-based setup. New workflows should use setup-moonbit-sdk.
-
-inputs:
-  dev-shell:
-    description: Nix devShell attribute to load.
-    required: false
-    default: default
+description: Install the stable MoonBit toolchain and update the registry.
 
 runs:
   using: composite
   steps:
+    - name: Set up MoonBit
+      uses: hustcer/setup-moonbit@618b32d610fecdbe9069cefcc01b7bcdb03ede29 # v1.26
+
     - name: Update MoonBit registry
       shell: bash
-      env:
-        NIX_DEV_SHELL: ${{ inputs.dev-shell }}
-      run: |
-        eval "$(nix print-dev-env "$GITHUB_WORKSPACE#$NIX_DEV_SHELL")"
-        moon update
+      run: moon update

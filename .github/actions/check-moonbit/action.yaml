@@ -1,5 +1,5 @@
 name: Check MoonBit
-description: Check the MoonBit workspace after running setup-moonbit-sdk.
+description: Check the MoonBit workspace after running setup-moonbit.
 
 inputs:
   dev-shell:
