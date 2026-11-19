@@ -10,6 +10,8 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Set up MoonBit
+      uses: hustcer/setup-moonbit@618b32d610fecdbe9069cefcc01b7bcdb03ede29 # v1.26
     - name: Update MoonBit registry
       shell: bash
       env:
