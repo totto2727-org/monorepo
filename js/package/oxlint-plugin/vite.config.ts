@@ -7,6 +7,7 @@ export default defineConfig({
     },
   },
   test: {
+    dir: 'src',
     setupFiles: ['./src/__fixtures__/rule-tester-setup.ts'],
   },
 })

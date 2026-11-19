@@ -22,5 +22,15 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "verbatimModuleSyntax": true
-  }
+  },
+  "include": [
+    "${configDir}/*.ts",
+    "${configDir}/*.tsx",
+    "${configDir}/src/**/*.ts",
+    "${configDir}/src/**/*.tsx",
+    "${configDir}/app/**/*.ts",
+    "${configDir}/app/**/*.tsx",
+    "${configDir}/content/**/*.ts",
+    "${configDir}/scripts/**/*.ts"
+  ]
 }
