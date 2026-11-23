@@ -6,38 +6,38 @@ packages:
 minimumReleaseAgeStrict: true
 
 catalog:
-  vite: npm:@voidzero-dev/vite-plus-core@^1.1.0
-  vite-plus: ^1.1.0
+  vite: npm:@voidzero-dev/vite-plus-core@^8.3.8000
+  vite-plus: ^1.7.0
 
 catalogs:
   auth:
-    '@better-auth/oauth-provider': ^1.7.7
-    '@better-auth/passkey': ^1.7.7
-    better-auth: ^1.7.7
+    '@better-auth/oauth-provider': ^1.7.27
+    '@better-auth/passkey': ^1.7.27
+    better-auth: ^1.7.27
     casbin: ^5.51.1
-    jose: ^6.2.12
+    jose: ^6.2.18
   compiler-api:
     typescript: ^6.0.3
   cloudflare:
-    '@cloudflare/vite-plugin': ^1.63.1
-    wrangler: ^4.149.0
+    '@cloudflare/vite-plugin': ^1.70.1
+    wrangler: ^4.166.0
   database:
     '@libsql/kysely-libsql': ^0.4.1
-    kysely: ^0.29.6
+    kysely: ^0.29.9
   dev:
     '@mikaelporttila/rss': npm:@jsr/mikaelporttila__rss@^1.1.3
   effect:
-    '@effect/platform-node': ^4.0.2
-    effect: ^4.0.2
+    '@effect/platform-node': ^4.1.5
+    effect: ^4.1.5
   graphql:
-    '@pothos/core': ^4.15.1
-    '@pothos/plugin-validation': ^4.3.4
-    graphql: ^16.14.2
+    '@pothos/core': ^4.18.1
+    '@pothos/plugin-validation': ^4.3.6
+    graphql: ^16.15.0
     graphql-scalars: ^1.26.0
   hono:
-    '@hono/graphql-server': ^0.7.0
+    '@hono/graphql-server': ^0.7.1
     '@hono/node-server': ^2.1.3
-    hono: ^4.13.13
+    hono: ^4.13.20
   i18n:
     '@inlang/paraglide-js': ^2.25.4
   lint:
@@ -51,22 +51,22 @@ catalogs:
     confbox: ^0.2.4
     github-markdown-css: ^5.9.0
     katex: ^0.17.0
-    knip: ^6.41.0
+    knip: ^6.47.0
     markdownlint: ^0.41.1
-    shiki: ^4.5.0
-    slopless: ^0.2.40
+    shiki: ^4.6.0
+    slopless: ^0.2.42
     textlint: ^15.8.0
-    textlint-rule-preset-ja-technical-writing: ^12.0.2
+    textlint-rule-preset-ja-technical-writing: ^12.1.0
   remix:
-    remix: ^3.0.0
+    remix: ^3.3.0
   storybook:
     storybook: ^10.6.1
   types:
     '@types/node': ^25.9.9
 
 overrides:
-  vite@*: npm:@voidzero-dev/vite-plus-core@1.1.0
-  vitest@*: 5.0.3
+  vite@*: npm:@voidzero-dev/vite-plus-core@8.3.8000
+  vitest@*: 5.1.0
 
 allowBuilds:
   esbuild: true

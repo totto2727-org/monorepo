@@ -40,14 +40,14 @@
     "base-x": "^5.0.1",
     "bignumber.js": "^11.1.5",
     "change-case": "^5.4.4",
-    "micro-memoize": "^5.2.0",
+    "micro-memoize": "^5.2.2",
     "option-t": "^56.1.2",
     "seedrandom": "^3.0.5",
     "temporal-polyfill": "^0.3.2",
     "velona": "^0.8.0"
   },
   "devDependencies": {
-    "@tsconfig/strictest": "^2.0.8",
+    "@tsconfig/strictest": "^2.0.9",
     "@types/node": "catalog:types",
     "@types/seedrandom": "^3.0.8",
     "effect": "catalog:effect",
