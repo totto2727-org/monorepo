@@ -53,7 +53,7 @@ const preset: Preset = {
     'rules/no-node-imports': [
       'error',
       {
-        allow: ['child_process', 'crypto', 'os', 'util'],
+        allow: ['child_process', 'os', 'util'],
       },
     ],
     'rules/no-option-tag-comparison': 'error',
